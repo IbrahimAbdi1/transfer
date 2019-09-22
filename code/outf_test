@@ -1,0 +1,32 @@
+
+ Performance counter stats for 'sh -c ./test false-sharing > /dev/null' (5 runs):
+
+        70,603,881 L1-dcache-loads                                               ( +-  0.03% )
+         3,155,442 L1-dcache-load-misses     #    4.47% of all L1-dcache hits    ( +- 24.66% )
+
+       0.072783869 seconds time elapsed                                          ( +- 12.57% )
+
+
+ Performance counter stats for 'sh -c ./test no-false-sharing > /dev/null' (5 runs):
+
+        70,588,596 L1-dcache-loads                                               ( +-  0.03% )
+            41,988 L1-dcache-load-misses     #    0.06% of all L1-dcache hits    ( +-  2.19% )
+
+       0.029822553 seconds time elapsed                                          ( +- 24.60% )
+
+
+ Performance counter stats for 'sh -c ./test false-sharing > /dev/null' (5 runs):
+
+           574,504 L1-dcache-loads                                               ( +-  3.92% )
+            39,763 L1-dcache-load-misses     #    6.92% of all L1-dcache hits    ( +-  2.81% )
+
+       0.010867448 seconds time elapsed                                          ( +- 89.58% )
+
+
+ Performance counter stats for 'sh -c ./test no-false-sharing > /dev/null' (5 runs):
+
+           576,647 L1-dcache-loads                                               ( +-  3.84% )
+            40,082 L1-dcache-load-misses     #    6.95% of all L1-dcache hits    ( +-  2.48% )
+
+       0.009319826 seconds time elapsed                                          ( +- 86.16% )
+
