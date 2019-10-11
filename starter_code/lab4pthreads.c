@@ -69,10 +69,10 @@ void* barber_mainloop(void *args)
    
     while(customers_served+customers_angry < total_customers){
         pthread_mutex_lock(&mutex);
-        if(in_waiting_room > 0 && (first <= last)){
+        if(in_waiting_room > 0){
             in_waiting_room--; 
             cut(id,waiting_room[first]);
-            first++;
+            first = (first+1) % waiting_room_capacity;
             customers_served++;
             
         }
@@ -102,7 +102,7 @@ void customers_mainloop()
         }
         else
         {
-            printf("last is %d\n",last);
+            
             waiting_room[last] = customers_created;
             last = (last+1) % waiting_room_capacity;
             in_waiting_room++;
