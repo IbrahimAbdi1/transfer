@@ -76,7 +76,7 @@ void* barber_mainloop(void *args)
         }
     }
 
-    return; 
+    return NULL; 
 
 
 }
