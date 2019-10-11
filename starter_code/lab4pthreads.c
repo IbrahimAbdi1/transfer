@@ -66,7 +66,7 @@ void* barber_mainloop(void *args)
      *  3- If the waiting room is empty and ALL customers have arrived for the day,
      *      the barber goes home (exits).
      */
-    pthread_mutex_lock(&mutex);
+   
     while(customers_served+customers_angry < total_customers){
         pthread_mutex_lock(&mutex);
         if(in_waiting_room > 0){
