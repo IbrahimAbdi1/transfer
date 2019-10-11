@@ -68,15 +68,17 @@ void* barber_mainloop(void *args)
      */
     pthread_mutex_lock(&mutex);
     while(customers_served+customers_angry < total_customers){
+        pthread_mutex_lock(&mutex);
         if(in_waiting_room > 0){
-           
+            in_waiting_room--; 
             cut(id,waiting_room[first]);
             first++;
             customers_served++;
             
         }
+        pthread_mutex_unlock(&mutex);
     }
-    pthread_mutex_unlock(&mutex);
+    
     return NULL; 
 
 
