@@ -78,7 +78,7 @@ void* barber_mainloop(void *args)
             customers_served++;
             
         }
-        
+        pthread_mutex_unlock(&mutex);
     }
     
     return NULL; 
