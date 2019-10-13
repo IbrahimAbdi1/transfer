@@ -52,7 +52,7 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
             int n_column = s_column + c;
             if((n_row >= 0) && (n_column >= 0)){
                 sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(n_row,n_column,width)]);
-                printf("sr = %d; sc = %d; r = %d; c = %d; f = %d; o = %d\n",n_row,n_column,r,c, f->matrix[access(r,c,f->dimension)],original[access(n_row,n_column,width)]);
+                //printf("sr = %d; sc = %d; r = %d; c = %d; f = %d; o = %d\n",n_row,n_column,r,c, f->matrix[access(r,c,f->dimension)],original[access(n_row,n_column,width)]);
             }
         }
     }
@@ -63,13 +63,13 @@ void apply_filter2d(const filter *f,
         const int32_t *original, int32_t *target,
         int32_t width, int32_t height)
 {
-    // for(int i = 0; i <height;i++){
-    //     for(int j = 0; j<width;j++){
-    //         int32_t new_pix = apply2d(f,original,target,width,height,i,j);
-    //         target2_m[access(i,j,width)] = new_pix;
-    //     }
-    // }
-    target[0] = apply2d(f,original,target,width,height,0,0);
+    for(int i = 0; i <height;i++){
+        for(int j = 0; j<width;j++){
+            int32_t new_pix = apply2d(f,original,target,width,height,i,j);
+            target2_m[access(i,j,width)] = new_pix;
+        }
+    }
+    
     
 }
 
@@ -77,12 +77,12 @@ int main(int argc, char **argv){
     int w,h;
     w = 2; h= 2;
     apply_filter2d(&(lp3_f),image2_m,target2_m,w,h);
-    // for(int i = 0;i<h;i++){
-    //     for (int j= 0;j<w;j++){
-    //         printf("target[%d][%d] = %d\n",i,j, target2_m[i*w+j]);
-    //     }
+    for(int i = 0;i<h;i++){
+        for (int j= 0;j<w;j++){
+            printf("target[%d][%d] = %d\n",i,j, target2_m[i*w+j]);
+        }
 
-    // }
-    printf("target[0][0] = %d\n",target2_m[0]);
+    }
+    
 
 }
