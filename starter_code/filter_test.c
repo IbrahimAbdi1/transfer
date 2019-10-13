@@ -81,6 +81,6 @@ int main(int argc, char **argv){
     //     }
 
     // }
-    printf("target[0][0] = %d\n",0,0, target2_m[0]);
+    printf("target[0][0] = %d\n",target2_m[0]);
 
 }
