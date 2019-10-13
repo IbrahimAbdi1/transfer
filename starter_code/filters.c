@@ -94,7 +94,23 @@ void apply_filter2d(const filter *f,
         const int32_t *original, int32_t *target,
         int32_t width, int32_t height)
 {
+    int pix_min = 0;
+    int pix_max = 255;
 
+    for(int i = 0; i <height;i++){
+        for(int j = 0; j<width;j++){
+            int32_t new_pix = apply2d(f,original,target,width,height,i,j);
+            target[access(i,j,width)] = new_pix;
+
+            if(new_pix < pix_min){
+                pix_min = new_pix;
+            }
+            else if (new_pix > pix_max){
+                pix_max = new_pix;
+            }
+            
+        }
+    }
 }
 
 /****************** ROW/COLUMN SHARDING ************/

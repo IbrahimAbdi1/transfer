@@ -50,6 +50,7 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
         for(int c = 0;c<f->dimension;c++){
             if((s_row >= 0) && (s_column >= 0)){
                 sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(s_row,s_column,width)]);
+                printf("sr = %d; sc = %d; r = %d; c = %d");
             }
         }
     }
