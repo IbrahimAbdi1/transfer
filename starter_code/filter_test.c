@@ -48,10 +48,10 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
     for(int r = 0;r<f->dimension;r++){
         s_row += r;
         for(int c = 0;c<f->dimension;c++){
+            s_column += c;
             if((s_row >= 0) && (s_column >= 0)){
-                s_column += c;
                 sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(s_row,s_column,width)]);
-                
+                //printf("sr = %d; sc = %d; r = %d; c = %d\n",s_row,s_column,r,c);
             }
         }
     }
