@@ -50,9 +50,9 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
         int n_row = s_row + r;
         for(int c = 0;c<f->dimension;c++){
             int n_column = s_column + c;
-            if((n_row >= 0) && (n_column >= 0)){
+            if((n_row >= 0) && (n_column >= 0) && (n_column < width) && (n_row < height)){
                 sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(n_row,n_column,width)]);
-                printf("sr = %d; sc = %d; r = %d; c = %d; f = %d; o = %d\n",n_row,n_column,r,c, f->matrix[access(r,c,f->dimension)],original[access(n_row,n_column,width)]);
+                printf("nr = %d; nc = %d; r = %d; c = %d; f = %d; o = %d\n",n_row,n_column,r,c, f->matrix[access(r,c,f->dimension)],original[access(n_row,n_column,width)]);
             }
         }
     }
