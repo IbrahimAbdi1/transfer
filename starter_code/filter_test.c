@@ -43,6 +43,7 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
 {
     int32_t sum = 0;
     int filter_centre = f->dimension/2;
+    printf("center = %d\n",filter_centre);
     int s_row = row - filter_centre;
     int s_column = column - filter_centre;
     for(int r = 0;r<f->dimension;r++){
