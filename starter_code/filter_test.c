@@ -1,4 +1,5 @@
 #include "filters.h"
+#include <stdio.h>
 #include <pthread.h>
 
 int8_t lp3_m[] =
