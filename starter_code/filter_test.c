@@ -52,7 +52,7 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
             int n_column = s_column + c;
             if((n_row >= 0) && (n_column >= 0)){
                 sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(n_row,n_column,width)]);
-                //printf("sr = %d; sc = %d; r = %d; c = %d; f = %d; o = %d\n",n_row,n_column,r,c, f->matrix[access(r,c,f->dimension)],original[access(n_row,n_column,width)]);
+                printf("sr = %d; sc = %d; r = %d; c = %d; f = %d; o = %d\n",n_row,n_column,r,c, f->matrix[access(r,c,f->dimension)],original[access(n_row,n_column,width)]);
             }
         }
     }
