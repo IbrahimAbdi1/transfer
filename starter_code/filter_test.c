@@ -69,7 +69,8 @@ void apply_filter2d(const filter *f,
     //         target2_m[access(i,j,width)] = new_pix;
     //     }
     // }
-    apply2d(f,original,target,width,height,0,0);
+    target[0] = apply2d(f,original,target,width,height,0,0);
+    
 }
 
 int main(int argc, char **argv){
