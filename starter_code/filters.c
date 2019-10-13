@@ -80,6 +80,8 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
     return 0;
 }
 
+
+
 /*********SEQUENTIAL IMPLEMENTATIONS ***************/
 /* TODO: your sequential implementation goes here.
  * IMPORTANT: you must test this thoroughly with lots of corner cases and 
@@ -92,6 +94,7 @@ void apply_filter2d(const filter *f,
         const int32_t *original, int32_t *target,
         int32_t width, int32_t height)
 {
+
 }
 
 /****************** ROW/COLUMN SHARDING ************/
