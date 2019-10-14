@@ -203,7 +203,7 @@ void* sharding_row_work(void *args){
     for(int i = 0; i<(x->height*x->width);i++){
         normalize_pixel(x->output_image,i,pix_min,pix_max);
     }
-
+    return NULL;
 }
 
 
