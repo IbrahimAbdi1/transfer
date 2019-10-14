@@ -162,7 +162,7 @@ void apply_filter2d(const filter *f,
 }
 
 
-void* sharding_row_work(void *args){
+void *sharding_row_work(void *args){
     work *w = (work *)args;
     common_work *x = w->common;
     int num_rows = w->common->height/w->common->max_threads;
@@ -206,7 +206,87 @@ void* sharding_row_work(void *args){
     return NULL;
 }
 
+void *sharded_columns_row_major_work(void *args){
+    work *w = (work *)args;
+    common_work *x = w->common;
+    int num_columns = x->width/x->max_threads;
+    int start_col = w->id*num_columns;
+    int end_col = start_col +num_columns;
 
+    if(w->id == (x->max_threads -1)){
+        for(int i = 0; i <x->height; i++){
+            for(int j= start_col;j<x->width;j++){
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                x->output_image[access(i,j,x->width)] = new_pix;
+                if(new_pix < pix_min){
+                    pix_min = new_pix;
+                }
+                else if (new_pix > pix_max){
+                    pix_max = new_pix;
+                }
+            }
+        }
+    }
+    else{
+        for(int i = 0; i <x->height; i++){
+            for(int j = start_col; j<end_col;j++){
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                x->output_image[access(i,j,x->width)] = new_pix;
+                if(new_pix < pix_min){
+                    pix_min = new_pix;
+                }
+                else if (new_pix > pix_max){
+                    pix_max = new_pix;
+                }
+            }
+        }
+    }
+
+    pthread_barrier_wait(&(x->barrier));
+
+    for(int i = 0; i<(x->height*x->width);i++){
+        normalize_pixel(x->output_image,i,pix_min,pix_max);
+    }
+    return NULL;
+}
+
+void *sharded_columns_column_major_work(void *args){
+    work *w = (work *)args;
+    common_work *x = w->common;
+    int num_columns = x->width/x->max_threads;
+    int start_col = w->id*num_columns;
+    int end_col = start_col +num_columns;
+
+    if(w->id == (x->max_threads -1)){
+        for(int i = start_col; i <x->width; i++){
+            for(int j= 0;j<x->height;j++){
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                x->output_image[access(i,j,x->width)] = new_pix;
+                if(new_pix < pix_min){
+                    pix_min = new_pix;
+                }
+                else if (new_pix > pix_max){
+                    pix_max = new_pix;
+                }
+            }
+        }
+    }
+    else{
+        for(int i = start_col; i < end_col; i++){
+            for(int j = 0; j<x->height;j++){
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                x->output_image[access(i,j,x->width)] = new_pix;
+                if(new_pix < pix_min){
+                    pix_min = new_pix;
+                }
+                else if (new_pix > pix_max){
+                    pix_max = new_pix;
+                }
+            }
+        }
+    }
+
+}
 /****************** ROW/COLUMN SHARDING ************/
 /* TODO: you don't have to implement this. It is just a suggestion for the
  * organization of the code.
@@ -303,6 +383,29 @@ void apply_filter2d_threaded(const filter *f,
         for(int i = 0; i < num_threads; i++) {
 		    pthread_join(t[i], NULL);
 	    }
+    }
+    else if(method == SHARDED_COLUMNS_ROW_MAJOR){
+
+        for(int i = 0; i < num_threads; i++) {
+		    y->id = i;
+		    pthread_create(&t[i], NULL,sharded_columns_row_major_work , (void *)y);
+	    }
+
+        for(int i = 0; i < num_threads; i++) {
+		    pthread_join(t[i], NULL);
+	    }
+
+    }
+    else if(method = SHARDED_COLUMNS_COLUMN_MAJOR){
+        for(int i = 0; i < num_threads; i++) {
+		    y->id = i;
+		    pthread_create(&t[i], NULL,sharded_columns_column_major_work , (void *)y);
+	    }
+
+        for(int i = 0; i < num_threads; i++) {
+		    pthread_join(t[i], NULL);
+	    }
+
     }
 
 
