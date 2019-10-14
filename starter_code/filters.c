@@ -15,6 +15,27 @@
 #include "filters.h"
 #include <pthread.h>
 
+
+
+typedef struct common_work_t
+{
+    const filter *f;
+            const int32_t *original_image;
+            int32_t *output_image;
+            int32_t width;
+            int32_t height;
+            int32_t max_threads;
+            pthread_barrier_t barrier;
+} common_work;
+typedef struct work_t
+{
+    common_work *common;
+    int32_t id;
+} work;
+
+int pix_min = 0;
+int pix_max = 255;
+
 /************** FILTER CONSTANTS*****************/
 /* laplacian */
 int8_t lp3_m[] =
@@ -77,7 +98,22 @@ int32_t apply2d(const filter *f, const int32_t *original, int32_t *target,
         int32_t width, int32_t height,
         int row, int column)
 {
-    return 0;
+    int32_t sum = 0;
+    int filter_centre = f->dimension/2;
+    
+    int s_row = row - filter_centre;
+    int s_column = column - filter_centre;
+    for(int r = 0;r<f->dimension;r++){
+        int n_row = s_row + r;
+        for(int c = 0;c<f->dimension;c++){
+            int n_column = s_column + c;
+            if((n_row >= 0) && (n_column >= 0) && (n_column < width) && (n_row < height)){
+                sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(n_row,n_column,width)]);
+                
+            }
+        }
+    }
+    return sum;
 }
 
 
@@ -94,8 +130,6 @@ void apply_filter2d(const filter *f,
         const int32_t *original, int32_t *target,
         int32_t width, int32_t height)
 {
-    int pix_min = 0;
-    int pix_max = 255;
 
     for(int i = 0; i <height;i++){
         for(int j = 0; j<width;j++){
@@ -112,8 +146,57 @@ void apply_filter2d(const filter *f,
         }
     }
 
-    
+    for(int i = 0; i<(height*width);i++){
+        normalize_pixel(target,i,pix_min,pix_max);
+    }
+
+
 }
+
+void* sharding_row_work(void *args){
+    work *w = (work *)args;
+    common_work *x = w->common;
+    int num_rows = w->common->height/w->common->max_threads;
+    int start_row = w->id * num_rows;
+    int end_row = start_row + num_rows;
+    if(w->id == (w->common->max_threads - 1)){
+        for(int i=start_row;i<x->height;i++){
+            for(int j =0;j<w->common->width;j++){
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                x->output_image[access(i,j,x->width)] = new_pix;
+                if(new_pix < pix_min){
+                    pix_min = new_pix;
+                }
+                else if (new_pix > pix_max){
+                    pix_max = new_pix;
+                }
+            }
+        }
+    }
+    else{
+        for(int i=start_row;i<end_row;i++){
+            for(int j =0;j<w->common->width;j++){
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                x->output_image[access(i,j,x->width)] = new_pix;
+                if(new_pix < pix_min){
+                    pix_min = new_pix;
+                }
+                else if (new_pix > pix_max){
+                    pix_max = new_pix;
+                }
+            }
+            
+        }
+    }
+
+    pthread_barrier_wait(x->barrier);
+
+    for(int i = 0; i<(x->height*x->width);i++){
+        normalize_pixel(x->output_image,i,pix_min,pix_max);
+    }
+
+}
+
 
 /****************** ROW/COLUMN SHARDING ************/
 /* TODO: you don't have to implement this. It is just a suggestion for the
@@ -187,4 +270,31 @@ void apply_filter2d_threaded(const filter *f,
      * An uglier (but simpler) solution is to define the shared variables
      * as global variables.
      */
+    pthread_barrier_t b;
+    pthread_barrier_init(&b,NULL,num_threads);
+    common_work *x;
+    work *y;
+    x->f = f;
+    x->original_image = original;
+    x->output_image = target;
+    x->barrier = b;
+    x->max_threads = num_threads;
+    x->width = width; x->height = height;
+    y->common = x;
+
+    pthread_t *t = (pthread_t*)malloc(num_threads * sizeof(pthread_t));
+    int *tid = (int*)malloc(num_threads * sizeof(int));
+    if(method = SHARDED_ROWS){
+        int *tid = (int*)malloc(num_threads * sizeof(int));
+        for(int i = 0; i < num_threads; i++) {
+		    y->id = i;
+		    pthread_create(&t[i], NULL,sharding_row_work , (void *)y);
+	    }
+
+        for(int i = 0; i < num_threads; i++) {
+		    pthread_join(t[i], NULL);
+	    }
+    }
+
+
 }
