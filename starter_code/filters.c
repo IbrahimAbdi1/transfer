@@ -89,6 +89,12 @@ void normalize_pixel(int32_t *target, int32_t pixel_idx, int32_t smallest,
     
     target[pixel_idx] = ((target[pixel_idx] - smallest) * 255) / (largest - smallest);
 }
+
+
+int access(int row,int column,int width){
+    return row*width+column;
+}
+
 /*************** COMMON WORK ***********************/
 /* Process a single pixel and returns the value of processed pixel
  * TODO: you don't have to implement/use this function, but this is a hint
@@ -152,6 +158,7 @@ void apply_filter2d(const filter *f,
 
 
 }
+
 
 void* sharding_row_work(void *args){
     work *w = (work *)args;
