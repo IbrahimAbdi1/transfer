@@ -286,6 +286,13 @@ void *sharded_columns_column_major_work(void *args){
         }
     }
 
+    pthread_barrier_wait(&(x->barrier));
+
+    for(int i = 0; i<(x->height*x->width);i++){
+        normalize_pixel(x->output_image,i,pix_min,pix_max);
+    }
+    return NULL;
+
 }
 /****************** ROW/COLUMN SHARDING ************/
 /* TODO: you don't have to implement this. It is just a suggestion for the
