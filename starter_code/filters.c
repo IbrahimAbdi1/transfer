@@ -403,7 +403,7 @@ void apply_filter2d_threaded(const filter *f,
 	    }
 
     }
-    else if(method = SHARDED_COLUMNS_COLUMN_MAJOR){
+    else if(method == SHARDED_COLUMNS_COLUMN_MAJOR){
         for(int i = 0; i < num_threads; i++) {
 		    y->id = i;
 		    pthread_create(&t[i], NULL,sharded_columns_column_major_work , (void *)y);
