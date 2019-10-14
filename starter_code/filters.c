@@ -281,8 +281,8 @@ void apply_filter2d_threaded(const filter *f,
      */
     pthread_barrier_t b;
     pthread_barrier_init(&b,NULL,num_threads);
-    common_work *x;
-    work *y;
+    common_work *x = malloc(sizeof(common_work));
+    work *y = malloc(sizeof(work));
     x->f = f;
     x->original_image = original;
     x->output_image = target;
