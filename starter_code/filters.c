@@ -35,8 +35,9 @@ typedef struct work_t
     int32_t id;
 } work;
 
-int pix_min = 0;
-int pix_max = 255;
+static int32_t Gpix_min = 0;
+static int32_t Gpix_max = 255;
+pthread_mutex_t lock;
 
 /************** FILTER CONSTANTS*****************/
 /* laplacian */
@@ -138,6 +139,8 @@ void apply_filter2d(const filter *f,
         const int32_t *original, int32_t *target,
         int32_t width, int32_t height)
 {
+    int32_t pix_min = 0;
+    int32_t pix_max = 255;
 
     for(int i = 0; i <height;i++){
         for(int j = 0; j<width;j++){
@@ -153,6 +156,7 @@ void apply_filter2d(const filter *f,
             
         }
     }
+    printf("min %d max %d \n",pix_min,pix_max);
 
     for(int i = 0; i<(height*width);i++){
         normalize_pixel(target,i,pix_min,pix_max);
@@ -165,9 +169,11 @@ void apply_filter2d(const filter *f,
 void *sharding_row_work(void *args){
     work *w = (work *)args;
     common_work *x = w->common;
-    int num_rows = w->common->height/w->common->max_threads;
+    int num_rows =w->common->height/w->common->max_threads;
     int start_row = w->id * num_rows;
     int end_row = start_row + num_rows;
+    int32_t pix_min = 0;
+    int32_t pix_max = 255;
     if(w->id == (w->common->max_threads - 1)){
         for(int i=start_row;i<x->height;i++){
             for(int j =0;j<w->common->width;j++){
@@ -197,12 +203,24 @@ void *sharding_row_work(void *args){
             
         }
     }
-
-    pthread_barrier_wait(&(x->barrier));
-
-    for(int i = 0; i<(x->height*x->width);i++){
-        normalize_pixel(x->output_image,i,pix_min,pix_max);
+    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    //pthread_barrier_wait(&(x->barrier));
+    pthread_mutex_lock(&lock);
+    if(pix_min < Gpix_min){
+        Gpix_min = pix_min;
+        
     }
+    else if (pix_max > Gpix_max){
+        
+        Gpix_max = pix_max;
+    }
+    pthread_mutex_unlock(&lock);
+    pthread_barrier_wait(&(x->barrier));
+   
+    
+    // for(int i = 0; i<(x->height*x->width);i++){
+    //     normalize_pixel(x->output_image,i,pix_min,pix_max);
+    // }
     return NULL;
 }
 
@@ -212,7 +230,8 @@ void *sharded_columns_row_major_work(void *args){
     int num_columns = x->width/x->max_threads;
     int start_col = w->id*num_columns;
     int end_col = start_col +num_columns;
-
+    int32_t pix_min = 0;
+    int32_t pix_max = 255;
     if(w->id == (x->max_threads -1)){
         for(int i = 0; i <x->height; i++){
             for(int j= start_col;j<x->width;j++){
@@ -242,11 +261,21 @@ void *sharded_columns_row_major_work(void *args){
         }
     }
 
-    pthread_barrier_wait(&(x->barrier));
-
-    for(int i = 0; i<(x->height*x->width);i++){
-        normalize_pixel(x->output_image,i,pix_min,pix_max);
+    //pthread_barrier_wait(&(x->barrier));
+    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    pthread_mutex_lock(&lock);
+    if(pix_min < Gpix_min){
+        Gpix_min = pix_min;
+        
     }
+    else if (pix_max > Gpix_max){
+        
+        Gpix_max = pix_max;
+    }
+    pthread_mutex_unlock(&lock);
+    // for(int i = 0; i<(x->height*x->width);i++){
+    //     normalize_pixel(x->output_image,i,pix_min,pix_max);
+    // }
     return NULL;
 }
 
@@ -256,12 +285,13 @@ void *sharded_columns_column_major_work(void *args){
     int num_columns = x->width/x->max_threads;
     int start_col = w->id*num_columns;
     int end_col = start_col +num_columns;
-
+    int pix_min = 0;
+    int pix_max = 255;
     if(w->id == (x->max_threads -1)){
         for(int i = start_col; i <x->width; i++){
             for(int j= 0;j<x->height;j++){
-                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
-                x->output_image[access(i,j,x->width)] = new_pix;
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,j,i);
+                x->output_image[access(j,i,x->width)] = new_pix;
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
@@ -274,8 +304,8 @@ void *sharded_columns_column_major_work(void *args){
     else{
         for(int i = start_col; i < end_col; i++){
             for(int j = 0; j<x->height;j++){
-                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
-                x->output_image[access(i,j,x->width)] = new_pix;
+                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,j,i);
+                x->output_image[access(j,i,x->width)] = new_pix;
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
@@ -285,12 +315,26 @@ void *sharded_columns_column_major_work(void *args){
             }
         }
     }
-
     pthread_barrier_wait(&(x->barrier));
+    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
 
-    for(int i = 0; i<(x->height*x->width);i++){
-        normalize_pixel(x->output_image,i,pix_min,pix_max);
+    pthread_mutex_lock(&lock);
+    if(pix_min < Gpix_min){
+        
+        Gpix_min = pix_min;
+        
     }
+    else if (pix_max > Gpix_max){
+        
+        Gpix_max = pix_max;
+        
+    }
+    pthread_mutex_unlock(&lock);
+    
+
+    // for(int i = 0; i<(x->height*x->width);i++){
+    //     normalize_pixel(x->output_image,i,pix_min,pix_max);
+    // }
     return NULL;
 
 }
@@ -366,23 +410,28 @@ void apply_filter2d_threaded(const filter *f,
      * An uglier (but simpler) solution is to define the shared variables
      * as global variables.
      */
+    pthread_mutex_init(&lock, NULL);
     pthread_barrier_t b;
+    
     pthread_barrier_init(&b,NULL,num_threads);
+    
     common_work *x = malloc(sizeof(common_work));
-    work *y = malloc(sizeof(work));
+    //work *y = malloc(sizeof(work));
     x->f = f;
     x->original_image = original;
     x->output_image = target;
     x->barrier = b;
     x->max_threads = num_threads;
     x->width = width; x->height = height;
-    y->common = x;
-
+    //y->common = x;
+    //int *tid = (int*)malloc(num_threads * sizeof(int));
     pthread_t *t = (pthread_t*)malloc(num_threads * sizeof(pthread_t));
     
     if(method == SHARDED_ROWS){
         
         for(int i = 0; i < num_threads; i++) {
+            work *y = malloc(sizeof(work));
+            y->common = x;
 		    y->id = i;
 		    pthread_create(&t[i], NULL,sharding_row_work , (void *)y);
 	    }
@@ -392,9 +441,12 @@ void apply_filter2d_threaded(const filter *f,
 	    }
     }
     else if(method == SHARDED_COLUMNS_ROW_MAJOR){
-
+        
         for(int i = 0; i < num_threads; i++) {
+            work *y = malloc(sizeof(work));
+            y->common = x;
 		    y->id = i;
+		    
 		    pthread_create(&t[i], NULL,sharded_columns_row_major_work , (void *)y);
 	    }
 
@@ -405,6 +457,8 @@ void apply_filter2d_threaded(const filter *f,
     }
     else if(method == SHARDED_COLUMNS_COLUMN_MAJOR){
         for(int i = 0; i < num_threads; i++) {
+            work *y = malloc(sizeof(work));
+            y->common = x;
 		    y->id = i;
 		    pthread_create(&t[i], NULL,sharded_columns_column_major_work , (void *)y);
 	    }
@@ -413,6 +467,10 @@ void apply_filter2d_threaded(const filter *f,
 		    pthread_join(t[i], NULL);
 	    }
 
+    }
+    printf("min %d max %d \n",Gpix_min,Gpix_max);
+    for(int i = 0; i<(height*width);i++){
+        normalize_pixel(target,i,Gpix_min,Gpix_max);
     }
 
 

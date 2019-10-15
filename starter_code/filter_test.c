@@ -76,13 +76,13 @@ void apply_filter2d(const filter *f,
 int main(int argc, char **argv){
     int w,h;
     w = 2; h= 2;
-    apply_filter2d(&(lp3_f),image2_m,target2_m,w,h);
-    for(int i = 0;i<h;i++){
-        for (int j= 0;j<w;j++){
-            printf("target[%d][%d] = %d\n",i,j, target2_m[i*w+j]);
-        }
 
-    }
+
+    for(int i = (1*(3/2)); i < 3; i++){
+            for(int j = 0; j<3;j++){
+                printf("(%d,%d)\n",i,j);
+            }
+        }
     
 
 }
