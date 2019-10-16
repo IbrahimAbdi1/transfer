@@ -28,6 +28,9 @@ typedef struct common_work_t
             int32_t height;
             int32_t max_threads;
             pthread_barrier_t barrier;
+            int32_t minp;
+            int32_t maxp;
+            pthread_mutex_t lock;
 } common_work;
 typedef struct work_t
 {
@@ -35,9 +38,9 @@ typedef struct work_t
     int32_t id;
 } work;
 
-static int32_t Gpix_min = 0;
-static int32_t Gpix_max = 255;
-pthread_mutex_t lock;
+// static int32_t Gpix_min = 0;
+// static int32_t Gpix_max = 255;
+// pthread_mutex_t lock;
 
 /************** FILTER CONSTANTS*****************/
 /* laplacian */
@@ -204,23 +207,18 @@ void *sharding_row_work(void *args){
         }
     }
     printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
-    //pthread_barrier_wait(&(x->barrier));
-    pthread_mutex_lock(&lock);
-    if(pix_min < Gpix_min){
-        Gpix_min = pix_min;
-        
-    }
-    else if (pix_max > Gpix_max){
-        
-        Gpix_max = pix_max;
-    }
-    pthread_mutex_unlock(&lock);
-    pthread_barrier_wait(&(x->barrier));
-   
     
-    // for(int i = 0; i<(x->height*x->width);i++){
-    //     normalize_pixel(x->output_image,i,pix_min,pix_max);
-    // }
+    pthread_mutex_lock(&(x->lock));
+    if(pix_min < x->minp){
+        
+        x->minp = pix_min;
+        
+    }
+    else if (pix_max > x->maxp){
+        x->maxp = pix_max;
+    }
+    pthread_mutex_unlock(&(x->lock));
+   
     return NULL;
 }
 
@@ -261,21 +259,20 @@ void *sharded_columns_row_major_work(void *args){
         }
     }
 
-    //pthread_barrier_wait(&(x->barrier));
+    
     printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
-    pthread_mutex_lock(&lock);
-    if(pix_min < Gpix_min){
-        Gpix_min = pix_min;
+    
+    pthread_mutex_lock(&(x->lock));
+    if(pix_min < x->minp){
+        
+        x->minp = pix_min;
         
     }
-    else if (pix_max > Gpix_max){
-        
-        Gpix_max = pix_max;
+    else if (pix_max > x->maxp){
+        x->maxp = pix_max;
     }
-    pthread_mutex_unlock(&lock);
-    // for(int i = 0; i<(x->height*x->width);i++){
-    //     normalize_pixel(x->output_image,i,pix_min,pix_max);
-    // }
+    pthread_mutex_unlock(&(x->lock));
+    
     return NULL;
 }
 
@@ -315,26 +312,19 @@ void *sharded_columns_column_major_work(void *args){
             }
         }
     }
-    pthread_barrier_wait(&(x->barrier));
-    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
-
-    pthread_mutex_lock(&lock);
-    if(pix_min < Gpix_min){
-        
-        Gpix_min = pix_min;
-        
-    }
-    else if (pix_max > Gpix_max){
-        
-        Gpix_max = pix_max;
-        
-    }
-    pthread_mutex_unlock(&lock);
     
-
-    // for(int i = 0; i<(x->height*x->width);i++){
-    //     normalize_pixel(x->output_image,i,pix_min,pix_max);
-    // }
+    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    pthread_mutex_lock(&(x->lock));
+    if(pix_min < x->minp){
+        
+        x->minp = pix_min;
+        
+    }
+    else if (pix_max > x->maxp){
+        x->maxp = pix_max;
+    }
+    pthread_mutex_unlock(&(x->lock));
+    
     return NULL;
 
 }
@@ -410,26 +400,23 @@ void apply_filter2d_threaded(const filter *f,
      * An uglier (but simpler) solution is to define the shared variables
      * as global variables.
      */
-    pthread_mutex_init(&lock, NULL);
-    pthread_barrier_t b;
-    
-    pthread_barrier_init(&b,NULL,num_threads);
     
     common_work *x = malloc(sizeof(common_work));
-    //work *y = malloc(sizeof(work));
+    
     x->f = f;
     x->original_image = original;
     x->output_image = target;
-    x->barrier = b;
+    pthread_barrier_init(&(x->barrier),NULL,num_threads);
+    pthread_mutex_init(&(x->lock), NULL);
     x->max_threads = num_threads;
     x->width = width; x->height = height;
-    //y->common = x;
-    //int *tid = (int*)malloc(num_threads * sizeof(int));
+    x->minp = 0; x->maxp = 255;
     pthread_t *t = (pthread_t*)malloc(num_threads * sizeof(pthread_t));
-    
+    //work *z = (work *)malloc(num_threads * sizeof(work));
     if(method == SHARDED_ROWS){
         
         for(int i = 0; i < num_threads; i++) {
+            //z[i].common = x; z[i].id = i;
             work *y = malloc(sizeof(work));
             y->common = x;
 		    y->id = i;
@@ -468,9 +455,9 @@ void apply_filter2d_threaded(const filter *f,
 	    }
 
     }
-    printf("min %d max %d \n",Gpix_min,Gpix_max);
+    printf("min %d max %d \n",x->minp,x->maxp);
     for(int i = 0; i<(height*width);i++){
-        normalize_pixel(target,i,Gpix_min,Gpix_max);
+        normalize_pixel(target,i,x->minp,x->maxp);
     }
 
 
