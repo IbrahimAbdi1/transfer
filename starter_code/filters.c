@@ -153,7 +153,7 @@ void apply_filter2d(const filter *f,
             if(new_pix < pix_min){
                 pix_min = new_pix;
             }
-            else if (new_pix > pix_max){
+            if (new_pix > pix_max){
                 pix_max = new_pix;
             }
             
@@ -214,7 +214,7 @@ void *sharding_row_work(void *args){
         x->minp = pix_min;
         
     }
-    else if (pix_max > x->maxp){
+    if (pix_max > x->maxp){
         x->maxp = pix_max;
     }
     pthread_mutex_unlock(&(x->lock));
