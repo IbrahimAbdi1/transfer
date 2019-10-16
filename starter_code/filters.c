@@ -28,6 +28,7 @@ typedef struct common_work_t
             int32_t height;
             int32_t max_threads;
             pthread_barrier_t barrier;
+            int32_t work_chunk;
             int32_t minp;
             int32_t maxp;
             pthread_mutex_t lock;
@@ -37,6 +38,11 @@ typedef struct work_t
     common_work *common;
     int32_t id;
 } work;
+
+int32_t num_chunks;
+int32_t curr_chunks;
+int32_t chunks_per_row;
+int32_t chunks_per_col;
 
 // static int32_t Gpix_min = 0;
 // static int32_t Gpix_max = 255;
@@ -206,7 +212,7 @@ void *sharding_row_work(void *args){
             
         }
     }
-    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    //printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
     
     pthread_mutex_lock(&(x->lock));
     if(pix_min < x->minp){
@@ -260,7 +266,7 @@ void *sharded_columns_row_major_work(void *args){
     }
 
     
-    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    //printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
     
     pthread_mutex_lock(&(x->lock));
     if(pix_min < x->minp){
@@ -313,7 +319,7 @@ void *sharded_columns_column_major_work(void *args){
         }
     }
     
-    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    //printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
     pthread_mutex_lock(&(x->lock));
     if(pix_min < x->minp){
         
@@ -327,6 +333,60 @@ void *sharded_columns_column_major_work(void *args){
     
     return NULL;
 
+}
+
+//stick in loop 
+//
+void *work_queue_work(void * args){
+    work *w = (work *)args;
+    common_work *x = w->common;
+    int local_chunk_row = chunks_per_row;
+    int local_chunk;
+    int pix_min = 0;
+    int pix_max = 255;
+    while(curr_chunks < num_chunks){
+        // lock and increase the tings 
+        // formula get next start col/row
+        // use apply2d logic for bounds
+        pthread_mutex_lock(&(x->lock));
+        local_chunk = curr_chunks;
+        curr_chunks++;
+        pthread_mutex_unlock(&(x->lock));
+
+        int start_row = (local_chunk / local_chunk_row) * x->work_chunk;
+        int start_col = (local_chunk % local_chunk_row) * x->work_chunk;
+
+        for(int i = start_row; i < (start_row + x->work_chunk); i ++){
+            for (int j = start_col; j<(start_col + x->work_chunk); j++){
+                if((i < x->height) && (j < x->width)){
+                    int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                    x->output_image[access(i,j,x->width)] = new_pix;
+                    if(new_pix < pix_min){
+                        pix_min = new_pix;
+                    }
+                    if (new_pix > pix_max){
+                        pix_max = new_pix;
+                    }
+                }
+                
+            }
+        }
+
+
+    }
+
+    pthread_mutex_lock(&(x->lock));
+    if(pix_min < x->minp){
+        
+        x->minp = pix_min;
+        
+    }
+    if (pix_max > x->maxp){
+        x->maxp = pix_max;
+    }
+    pthread_mutex_unlock(&(x->lock));
+    
+    
 }
 /****************** ROW/COLUMN SHARDING ************/
 /* TODO: you don't have to implement this. It is just a suggestion for the
@@ -455,6 +515,36 @@ void apply_filter2d_threaded(const filter *f,
 	    }
 
     }
+
+    else if(method == WORK_QUEUE){
+        x->work_chunk = work_chunk;
+        curr_chunks = 0;
+        if((width % work_chunk) > 0){
+            chunks_per_row = width/work_chunk + 1;
+        }
+        else{
+            chunks_per_row = width/work_chunk;
+        }
+        if((height % work_chunk) > 0){
+            chunks_per_col = height / work_chunk + 1;
+        }
+        else{
+            chunks_per_col = height / work_chunk;
+        }
+        num_chunks = chunks_per_col * chunks_per_row;
+        for(int i = 0; i < num_threads; i++) {
+            work *y = malloc(sizeof(work));
+            y->common = x;
+		    y->id = i;
+		    pthread_create(&t[i], NULL,work_queue_work , (void *)y);
+	    }
+
+        for(int i = 0; i < num_threads; i++) {
+		    pthread_join(t[i], NULL);
+	    }
+
+    }
+
     printf("min %d max %d \n",x->minp,x->maxp);
     for(int i = 0; i<(height*width);i++){
         normalize_pixel(target,i,x->minp,x->maxp);
