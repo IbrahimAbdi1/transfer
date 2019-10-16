@@ -297,17 +297,6 @@ void *sharded_columns_column_major_work(void *args){
                 }
             }
         }
-        pthread_mutex_lock(&(x->lock));
-    
-        if(pix_min < x->minp){
-        
-            x->minp = pix_min;
-        
-        }
-        else if (pix_max > x->maxp){
-        x->maxp = pix_max;
-        }
-        pthread_mutex_unlock(&(x->lock));
     }
     else{
         for(int i = start_col; i < end_col; i++){
@@ -322,20 +311,19 @@ void *sharded_columns_column_major_work(void *args){
                 }
             }
         }
-        pthread_mutex_lock(&(x->lock));
-    
-        if(pix_min < x->minp){
-        
-            x->minp = pix_min;
-        
-        }
-        else if (pix_max > x->maxp){
-        x->maxp = pix_max;
-        }
-        pthread_mutex_unlock(&(x->lock));
     }
     
-    
+    printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    pthread_mutex_lock(&(x->lock));
+    if(pix_min < x->minp){
+        
+        x->minp = pix_min;
+        
+    }
+    else if (pix_max > x->maxp){
+        x->maxp = pix_max;
+    }
+    pthread_mutex_unlock(&(x->lock));
     
     return NULL;
 
