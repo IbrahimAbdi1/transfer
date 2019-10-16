@@ -238,7 +238,7 @@ void *sharded_columns_row_major_work(void *args){
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
-                else if (new_pix > pix_max){
+                if (new_pix > pix_max){
                     pix_max = new_pix;
                 }
             }
@@ -252,7 +252,7 @@ void *sharded_columns_row_major_work(void *args){
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
-                else if (new_pix > pix_max){
+                if (new_pix > pix_max){
                     pix_max = new_pix;
                 }
             }
@@ -268,7 +268,7 @@ void *sharded_columns_row_major_work(void *args){
         x->minp = pix_min;
         
     }
-    else if (pix_max > x->maxp){
+    if (pix_max > x->maxp){
         x->maxp = pix_max;
     }
     pthread_mutex_unlock(&(x->lock));
@@ -292,7 +292,7 @@ void *sharded_columns_column_major_work(void *args){
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
-                else if (new_pix > pix_max){
+                if (new_pix > pix_max){
                     pix_max = new_pix;
                 }
             }
@@ -306,7 +306,7 @@ void *sharded_columns_column_major_work(void *args){
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
-                else if (new_pix > pix_max){
+                if (new_pix > pix_max){
                     pix_max = new_pix;
                 }
             }
@@ -320,7 +320,7 @@ void *sharded_columns_column_major_work(void *args){
         x->minp = pix_min;
         
     }
-    else if (pix_max > x->maxp){
+    if (pix_max > x->maxp){
         x->maxp = pix_max;
     }
     pthread_mutex_unlock(&(x->lock));
