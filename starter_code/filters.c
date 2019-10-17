@@ -43,6 +43,7 @@ int32_t num_chunks;
 int32_t curr_chunks;
 int32_t chunks_per_row;
 int32_t chunks_per_col;
+int32_t curr_chunks2;
 
 // static int32_t Gpix_min = 0;
 // static int32_t Gpix_max = 255;
@@ -466,6 +467,7 @@ void *work_queue_work(void * args){
 
     }
 
+    
     pthread_mutex_lock(&(x->lock));
     if(pix_min < x->minp){
         
@@ -476,6 +478,31 @@ void *work_queue_work(void * args){
         x->maxp = pix_max;
     }
     pthread_mutex_unlock(&(x->lock));
+    // pthread_barrier_wait(&(x->barrier));
+    
+    // while(curr_chunks2 < num_chunks){
+    //     // lock and increase the tings 
+    //     // formula get next start col/row
+    //     // use apply2d logic for bounds
+    //     pthread_mutex_lock(&(x->lock));
+    //     local_chunk = curr_chunks2;
+    //     curr_chunks2++;
+    //     pthread_mutex_unlock(&(x->lock));
+
+    //     int start_row = (local_chunk / local_chunk_row) * x->work_chunk;
+    //     int start_col = (local_chunk % local_chunk_row) * x->work_chunk;
+
+    //     for(int i = start_row; i < (start_row + x->work_chunk); i ++){
+    //         for (int j = start_col; j<(start_col + x->work_chunk); j++){
+    //             if((i < x->height) && (j < x->width)){
+    //                 normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
+    //             }
+                
+    //         }
+    //     }
+
+
+    // }
     
     return NULL;
 }
@@ -609,7 +636,7 @@ void apply_filter2d_threaded(const filter *f,
 
     else if(method == WORK_QUEUE){
         x->work_chunk = work_chunk;
-        curr_chunks = 0;
+        curr_chunks = 0; curr_chunks2 = 0;
         if((width % work_chunk) > 0){
             chunks_per_row = width/work_chunk + 1;
         }
