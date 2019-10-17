@@ -273,6 +273,23 @@ void *sharded_columns_row_major_work(void *args){
                 }
             }
         }
+
+        // pthread_mutex_lock(&(x->lock));
+        // if(pix_min < x->minp){
+        //     x->minp = pix_min;
+        // }
+        // if (pix_max > x->maxp){
+        //     x->maxp = pix_max;
+        // }
+        // pthread_mutex_unlock(&(x->lock));
+
+        // pthread_barrier_wait(&(x->barrier));
+        // for(int i = 0; i <x->height; i++){
+        //     for(int j= start_col;j<x->width;j++){
+        //         normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
+        //     }
+        // }
+
     }
     else{
         for(int i = 0; i <x->height; i++){
@@ -287,6 +304,22 @@ void *sharded_columns_row_major_work(void *args){
                 }
             }
         }
+        // pthread_mutex_lock(&(x->lock));
+        // if(pix_min < x->minp){
+        //     x->minp = pix_min;
+        // }
+        // if (pix_max > x->maxp){
+        //     x->maxp = pix_max;
+        // }
+        // pthread_mutex_unlock(&(x->lock));
+
+        // pthread_barrier_wait(&(x->barrier));
+        // for(int i = 0; i <x->height; i++){
+        //     for(int j = start_col; j<end_col;j++){
+        //         normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
+        //     }
+        // }
+        
     }
 
     
@@ -327,6 +360,24 @@ void *sharded_columns_column_major_work(void *args){
                 }
             }
         }
+
+        // pthread_mutex_lock(&(x->lock));
+        // if(pix_min < x->minp){
+        //     x->minp = pix_min;
+        // }
+        // if (pix_max > x->maxp){
+        //     x->maxp = pix_max;
+        // }
+        // pthread_mutex_unlock(&(x->lock));
+
+        // pthread_barrier_wait(&(x->barrier));
+        // for(int i = start_col; i <x->width; i++){
+        //     for(int j= 0;j<x->height;j++){
+        //         normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
+        //     }
+        // }
+
+        
     }
     else{
         for(int i = start_col; i < end_col; i++){
@@ -341,6 +392,22 @@ void *sharded_columns_column_major_work(void *args){
                 }
             }
         }
+
+        // pthread_mutex_lock(&(x->lock));
+        // if(pix_min < x->minp){
+        //     x->minp = pix_min;
+        // }
+        // if (pix_max > x->maxp){
+        //     x->maxp = pix_max;
+        // }
+        // pthread_mutex_unlock(&(x->lock));
+
+        // pthread_barrier_wait(&(x->barrier));
+        // for(int i = start_col; i < end_col; i++){
+        //     for(int j = 0; j<x->height;j++){
+        //         normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
+        //     }
+        // }
     }
     
     //printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
