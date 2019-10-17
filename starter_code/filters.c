@@ -246,7 +246,7 @@ void *sharding_row_work(void *args){
             }
         }
     }
-    //printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
+    
     
     
    
@@ -275,21 +275,21 @@ void *sharded_columns_row_major_work(void *args){
             }
         }
 
-        // pthread_mutex_lock(&(x->lock));
-        // if(pix_min < x->minp){
-        //     x->minp = pix_min;
-        // }
-        // if (pix_max > x->maxp){
-        //     x->maxp = pix_max;
-        // }
-        // pthread_mutex_unlock(&(x->lock));
+        pthread_mutex_lock(&(x->lock));
+        if(pix_min < x->minp){
+            x->minp = pix_min;
+        }
+        if (pix_max > x->maxp){
+            x->maxp = pix_max;
+        }
+        pthread_mutex_unlock(&(x->lock));
 
-        // pthread_barrier_wait(&(x->barrier));
-        // for(int i = 0; i <x->height; i++){
-        //     for(int j= start_col;j<x->width;j++){
-        //         normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
-        //     }
-        // }
+        pthread_barrier_wait(&(x->barrier));
+        for(int i = 0; i <x->height; i++){
+            for(int j= start_col;j<x->width;j++){
+                normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
+            }
+        }
 
     }
     else{
@@ -305,37 +305,25 @@ void *sharded_columns_row_major_work(void *args){
                 }
             }
         }
-        // pthread_mutex_lock(&(x->lock));
-        // if(pix_min < x->minp){
-        //     x->minp = pix_min;
-        // }
-        // if (pix_max > x->maxp){
-        //     x->maxp = pix_max;
-        // }
-        // pthread_mutex_unlock(&(x->lock));
+        pthread_mutex_lock(&(x->lock));
+        if(pix_min < x->minp){
+            x->minp = pix_min;
+        }
+        if (pix_max > x->maxp){
+            x->maxp = pix_max;
+        }
+        pthread_mutex_unlock(&(x->lock));
 
-        // pthread_barrier_wait(&(x->barrier));
-        // for(int i = 0; i <x->height; i++){
-        //     for(int j = start_col; j<end_col;j++){
-        //         normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
-        //     }
-        // }
+        pthread_barrier_wait(&(x->barrier));
+        for(int i = 0; i <x->height; i++){
+            for(int j = start_col; j<end_col;j++){
+                normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
+            }
+        }
         
     }
 
     
-    //printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
-    
-    pthread_mutex_lock(&(x->lock));
-    if(pix_min < x->minp){
-        
-        x->minp = pix_min;
-        
-    }
-    if (pix_max > x->maxp){
-        x->maxp = pix_max;
-    }
-    pthread_mutex_unlock(&(x->lock));
     
     return NULL;
 }
@@ -362,21 +350,21 @@ void *sharded_columns_column_major_work(void *args){
             }
         }
 
-        // pthread_mutex_lock(&(x->lock));
-        // if(pix_min < x->minp){
-        //     x->minp = pix_min;
-        // }
-        // if (pix_max > x->maxp){
-        //     x->maxp = pix_max;
-        // }
-        // pthread_mutex_unlock(&(x->lock));
+        pthread_mutex_lock(&(x->lock));
+        if(pix_min < x->minp){
+            x->minp = pix_min;
+        }
+        if (pix_max > x->maxp){
+            x->maxp = pix_max;
+        }
+        pthread_mutex_unlock(&(x->lock));
 
-        // pthread_barrier_wait(&(x->barrier));
-        // for(int i = start_col; i <x->width; i++){
-        //     for(int j= 0;j<x->height;j++){
-        //         normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
-        //     }
-        // }
+        pthread_barrier_wait(&(x->barrier));
+        for(int i = start_col; i <x->width; i++){
+            for(int j= 0;j<x->height;j++){
+                normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
+            }
+        }
 
         
     }
@@ -394,34 +382,24 @@ void *sharded_columns_column_major_work(void *args){
             }
         }
 
-        // pthread_mutex_lock(&(x->lock));
-        // if(pix_min < x->minp){
-        //     x->minp = pix_min;
-        // }
-        // if (pix_max > x->maxp){
-        //     x->maxp = pix_max;
-        // }
-        // pthread_mutex_unlock(&(x->lock));
+        pthread_mutex_lock(&(x->lock));
+        if(pix_min < x->minp){
+            x->minp = pix_min;
+        }
+        if (pix_max > x->maxp){
+            x->maxp = pix_max;
+        }
+        pthread_mutex_unlock(&(x->lock));
 
-        // pthread_barrier_wait(&(x->barrier));
-        // for(int i = start_col; i < end_col; i++){
-        //     for(int j = 0; j<x->height;j++){
-        //         normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
-        //     }
-        // }
+        pthread_barrier_wait(&(x->barrier));
+        for(int i = start_col; i < end_col; i++){
+            for(int j = 0; j<x->height;j++){
+                normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
+            }
+        }
     }
     
-    //printf("min %d max %d  thread %d \n",pix_min,pix_max,w->id);
-    pthread_mutex_lock(&(x->lock));
-    if(pix_min < x->minp){
-        
-        x->minp = pix_min;
-        
-    }
-    if (pix_max > x->maxp){
-        x->maxp = pix_max;
-    }
-    pthread_mutex_unlock(&(x->lock));
+   
     
     return NULL;
 
@@ -437,9 +415,7 @@ void *work_queue_work(void * args){
     int pix_min = 0;
     int pix_max = 255;
     while(curr_chunks < num_chunks){
-        // lock and increase the tings 
-        // formula get next start col/row
-        // use apply2d logic for bounds
+        
         pthread_mutex_lock(&(x->lock));
         local_chunk = curr_chunks;
         curr_chunks++;
@@ -478,31 +454,29 @@ void *work_queue_work(void * args){
         x->maxp = pix_max;
     }
     pthread_mutex_unlock(&(x->lock));
-    // pthread_barrier_wait(&(x->barrier));
+    pthread_barrier_wait(&(x->barrier));
     
-    // while(curr_chunks2 < num_chunks){
-    //     // lock and increase the tings 
-    //     // formula get next start col/row
-    //     // use apply2d logic for bounds
-    //     pthread_mutex_lock(&(x->lock));
-    //     local_chunk = curr_chunks2;
-    //     curr_chunks2++;
-    //     pthread_mutex_unlock(&(x->lock));
+    while(curr_chunks2 < num_chunks){
+        
+        pthread_mutex_lock(&(x->lock));
+        local_chunk = curr_chunks2;
+        curr_chunks2++;
+        pthread_mutex_unlock(&(x->lock));
 
-    //     int start_row = (local_chunk / local_chunk_row) * x->work_chunk;
-    //     int start_col = (local_chunk % local_chunk_row) * x->work_chunk;
+        int start_row = (local_chunk / local_chunk_row) * x->work_chunk;
+        int start_col = (local_chunk % local_chunk_row) * x->work_chunk;
 
-    //     for(int i = start_row; i < (start_row + x->work_chunk); i ++){
-    //         for (int j = start_col; j<(start_col + x->work_chunk); j++){
-    //             if((i < x->height) && (j < x->width)){
-    //                 normalize_pixel(x->output_image,access(j,i,x->width),x->minp,x->maxp);
-    //             }
+        for(int i = start_row; i < (start_row + x->work_chunk); i ++){
+            for (int j = start_col; j<(start_col + x->work_chunk); j++){
+                if((i < x->height) && (j < x->width)){
+                    normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
+                }
                 
-    //         }
-    //     }
+            }
+        }
 
 
-    // }
+    }
     
     return NULL;
 }
@@ -663,10 +637,5 @@ void apply_filter2d_threaded(const filter *f,
 
     }
 
-    printf("min %d max %d \n",x->minp,x->maxp);
-    // for(int i = 0; i<(height*width);i++){
-    //     normalize_pixel(target,i,x->minp,x->maxp);
-    // }
-
-
+   
 }
