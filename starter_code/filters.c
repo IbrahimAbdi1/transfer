@@ -166,7 +166,7 @@ void apply_filter2d(const filter *f,
             
         }
     }
-    printf("min %d max %d \n",pix_min,pix_max);
+    
 
     for(int i = 0; i<(height*width);i++){
         normalize_pixel(target,i,pix_min,pix_max);
