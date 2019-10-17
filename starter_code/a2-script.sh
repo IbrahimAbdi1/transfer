@@ -2,7 +2,7 @@
 
 make clean ; make
 
-# pgm creator or whatevs
+# pgm creator or whatevers
 
 for m in 2 3 4 5
 do
