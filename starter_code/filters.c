@@ -386,7 +386,7 @@ void *work_queue_work(void * args){
     }
     pthread_mutex_unlock(&(x->lock));
     
-    
+    return NULL;
 }
 /****************** ROW/COLUMN SHARDING ************/
 /* TODO: you don't have to implement this. It is just a suggestion for the
