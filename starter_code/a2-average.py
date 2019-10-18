@@ -17,11 +17,11 @@ def edit_method():
 
 def write_average(s):
     with open(s,"a") as f:
-                    f.write("1 " + method[1] + "\n")
-                    f.write("2 " + method[2] + "\n")
-                    f.write("4 " + method[4] + "\n")
-                    f.write("8 " + method[8] + "\n")
-                    f.write("16 " + method[16] + "\n")
+                    f.write("1 " + str(method[1]) + "\n")
+                    f.write("2 " + str(method[2]) + "\n")
+                    f.write("4 " + str(method[4]) + "\n")
+                    f.write("8 " + str(method[8]) + "\n")
+                    f.write("16 " + str(method[16]) + "\n")
 
 
 with open("results.txt","r") as fp:
