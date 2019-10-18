@@ -21,6 +21,7 @@ def write_average(s):
 with open("results.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
+        print(x)
         if x == "method 1":
             print("hi")
             method = {}
@@ -34,7 +35,7 @@ with open("results.txt","r") as fp:
             write_average("result-average2.txt")
             method = {}
         
-        elif "method 4" :
+        elif "method 4":
             edit_method()
             write_average("result-average3.txt")
             method = {}
