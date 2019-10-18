@@ -22,6 +22,7 @@ with open("results.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
         if x == "method 1":
+            print("hi")
             method = {}
         
         elif x == "method 2":
@@ -47,6 +48,7 @@ with open("results.txt","r") as fp:
             y = x.split(" ")
             thread = int(y[0])
             time = float(y[1])
+            print("thread " + str(thread))
             method[thread] += time
 
 edit_method()
