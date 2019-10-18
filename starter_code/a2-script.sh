@@ -34,4 +34,8 @@ do
 done
 
 
-# gnuplot -e "set terminal pdf; set output 'datab2.pdf';set xlabel 'Kilobytes';set ylabel 'average time per access (nanosecounds)';set title 'CPU Cache Heirarchy Experiment Small';plot 'part1b_cache_results.txt' with linepoints"
+Average time over 10 runs given n threads [4M pixels square image, filter = 9x9, chunk_size = n]
+
+#gnuplot -e "set terminal pdf; set output 'datat.pdf';set xlabel '# Threads';set ylabel 'Average time over 10 runs (secounds)';set title '[4M pixel square image, filter = 9x9, chunk size = # of Threads]';plot 'result-average1.txt' with linespoints title 'sequential', 'result-average2.txt' with linespoints title 'sharded_rows', 'result-average3.txt' with linespoints title 'sharded_columns column major', 'result-average4.txt' with linespoints title 'sharded_columns row major', 'result-average5.txt' with linespoints title 'work queue'"
+
+#gnuplot -e "set terminal pdf; set output 'datat2.pdf';set xlabel '# chunks';set ylabel 'Average time over 10 runs (secounds)';set title 'test';plot 'result2-average1.txt' with linespoints title 'Thread 1', 'result2-average2.txt' with linespoints title 'thread 2', 'result2-average3.txt' with linespoints title 'thread 4', 'result2-average4.txt' with linespoints title 'thread 8', 'result2-average6.txt' with linespoints title 'thread 16'"
