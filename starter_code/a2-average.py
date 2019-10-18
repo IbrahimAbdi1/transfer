@@ -23,6 +23,7 @@ with open("results.txt","r") as fp:
         x = line.strip("\n")
         if x == "method 1":
             method = {}
+        
         elif x == "method 2":
             edit_method()
             write_average("result-average1.txt")
@@ -74,7 +75,7 @@ with open("results2.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
         if x == "thread 1":
-
+            method = {}
         elif x == "thread 2":
             edit_chunk()
             write_average_chunk("result2-average1.txt")
