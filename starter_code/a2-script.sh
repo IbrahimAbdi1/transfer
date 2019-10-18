@@ -4,6 +4,8 @@ make clean ; make
 
 # pgm creator or whatevers
 
+rm -f results.txt
+
 for m in 2 3 4 5
 do
     echo method ${m} >> results.txt
