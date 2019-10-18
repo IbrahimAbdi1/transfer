@@ -84,7 +84,7 @@ int main(int argc, char **argv)
                 break;
             case 'u':
                 print_num = atoi(optarg);
-                printf("print_num %d \n",print_num);
+                
                 break;
             case '?':
                 print_error_arguments();
