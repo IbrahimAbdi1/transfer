@@ -11,7 +11,10 @@ do
     echo method ${m} >> results.txt
     for n in 1 2 4 8 16
     do
-    ./main2.out -t 1 -b 2 -f 3 -m ${m} -n ${n} -c ${n} >> results.txt
+        for x in 1 2 3 4 5 6 7 8 9 10
+        do
+        ./main2.out -t 1 -b 1 -f 3 -m ${m} -n ${n} -c ${n} >> results.txt
+        done 
     done
 done
 
