@@ -1,6 +1,12 @@
 
 
 method = {}
+def method_init():
+    method[1] = 0
+    method[2] = 0
+    method[4] = 0
+    method[8] = 0
+    method[16] = 0
 
 def edit_method():
     method[1] = method[1] / 10
@@ -21,37 +27,33 @@ def write_average(s):
 with open("results.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
-        print(x)
+        
         if x == "method 1":
-            print("hi")
-            method = {}
+            method_init()
         
         elif x == "method 2":
             edit_method()
             write_average("result-average1.txt")
-            method = {}
+            method_init()
         
         elif x == "method 3":
             edit_method()
             write_average("result-average2.txt")
-            method = {}
+            method_init()
         
         elif x == "method 4":
             edit_method()
             write_average("result-average3.txt")
-            method = {}
+            method_init()
         
         elif x == "method 5":
             edit_method()
             write_average("result-average4.txt")
-            method = {}
+            method_init()
 
         else:
-            print(x)
-            y = x.split(" ")
             thread = int(y[0])
             time = float(y[1])
-            print("thread " + str(thread))
             method[thread] += time
 
 edit_method()
@@ -80,7 +82,7 @@ write_average("result-average5.txt")
 #     for line in fp1:
 #         x = line.strip("\n")
 #         if x == "thread 1":
-#             method = {}
+#             method_init()
 #         elif x == "thread 2":
 #             edit_chunk()
 #             write_average_chunk("result2-average1.txt")
@@ -92,12 +94,12 @@ write_average("result-average5.txt")
 #         elif x == "thread 8":
 #             edit_chunk()
 #             write_average_chunk("result2-average3.txt")
-#             method = {}
+#             method_init()
         
 #         elif x == "thread 16":
 #             edit_method()
 #             write_average("result2-average4.txt")
-#             method = {}
+#             method_init()
 
 #         else:
 #             y = x.split(" ")
