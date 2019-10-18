@@ -47,7 +47,7 @@ with open("results.txt","r") as fp:
             y = x.split(" ")
             thread = int(y[0])
             time = float(y[1])
-            method1[thread] += time
+            method[thread] += time
 
 edit_method()
 write_average("result-average5.txt")
@@ -98,7 +98,7 @@ with open("results2.txt","r") as fp:
             y = x.split(" ")
             thread = int(y[0])
             time = float(y[1])
-            method1[thread] += time
+            method[thread] += time
 
 edit_chunk()
 write_average_chunk("result-average5.txt")
