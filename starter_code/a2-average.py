@@ -21,23 +21,23 @@ def write_average(s):
 with open("results.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
-        if(x == "method 1"):
-
-        elif(x == "method 2"):
+        if x == "method 1":
+            method = {}
+        elif x == "method 2":
             edit_method()
             write_average("result-average1.txt")
             method = {}
-        elif(x == "method 3"):
+        elif x == "method 3":
             edit_method()
             write_average("result-average2.txt")
             method = {}
         
-        elif("method 4"):
+        elif "method 4" :
             edit_method()
             write_average("result-average3.txt")
             method = {}
         
-        elif(x == "method 5"):
+        elif x == "method 5":
             edit_method()
             write_average("result-average4.txt")
             method = {}
@@ -73,22 +73,22 @@ def write_average_chunk(s):
 with open("results2.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
-        if(x == "thread 1"):
+        if x == "thread 1":
 
-        elif(x == "thread 2"):
+        elif x == "thread 2":
             edit_chunk()
             write_average_chunk("result2-average1.txt")
             chunk = {}
-        elif(x == "thread 4"):
+        elif x == "thread 4":
             edit_chunk()
             write_average("result2-average2.txt")
         
-        elif("thread 8"):
+        elif x == "thread 8":
             edit_chunk()
             write_average_chunk("result2-average3.txt")
             method = {}
         
-        elif(x == "thread 16"):
+        elif x == "thread 16":
             edit_method()
             write_average("result2-average4.txt")
             method = {}
