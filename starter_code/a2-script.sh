@@ -24,7 +24,7 @@ done
 for n in 1 2 4 8 16
 do
     echo thread ${n} >> results2.txt
-    for c in 1 2 4 8 32
+    for c in 1 2 4 8 16 32
     do
         for x in 1 2 3 4 5 6 7 8 9 10
         do
