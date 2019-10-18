@@ -4,7 +4,7 @@ GCC_OPT = -O2 -Wall -Werror
 %.o: %.c
 	$(CC) -c -o $@ $< $(GCC_OPT)
 
-main: very_big_sample.o very_tall_sample.o main.c pgm.c filters.c main2.c
+main: very_big_sample.o very_tall_sample.o main.c pgm.c filters.c
 	$(CC) $(GCC_OPT) main.c pgm.c filters.c very_big_sample.o very_tall_sample.o -o main.out -lpthread
 
 #TODO: run your script that runs the experiments, collects all necessary data, and produces the graphs
