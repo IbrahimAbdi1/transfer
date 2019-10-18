@@ -18,7 +18,7 @@ def write_average(s):
                     f.write("16 " + method[16] + "\n")
 
 
-for open("results.txt","r") as fp:
+with open("results.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
         if(x == "method 1"):
@@ -70,7 +70,7 @@ def write_average_chunk(s):
                     f.write("16 " + method[16] + "\n")
                     f.write("32 " + method[32] + "\n")
 
-for open("results2.txt","r") as fp:
+with open("results2.txt","r") as fp:
     for line in fp:
         x = line.strip("\n")
         if(x == "thread 1"):
