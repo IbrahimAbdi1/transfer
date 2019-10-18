@@ -186,10 +186,18 @@ int main(int argc, char **argv)
 
     if (print_time)
     {
+        if(print_num == 1){
         printf("%d %.2lf\n",nthreads,
                 (stop.tv_sec - start.tv_sec)
                 +(double)(stop.tv_nsec - start.tv_nsec) / 1000000000
               );
+        }
+        else if(print_num == 2){
+            printf("%d %.2lf\n",chunk_size,
+                (stop.tv_sec - start.tv_sec)
+                +(double)(stop.tv_nsec - start.tv_nsec) / 1000000000
+              );
+        }
     }
     
     if (target_file != NULL)
