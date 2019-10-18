@@ -1,12 +1,11 @@
 #!/bin/bash
 
-make clean ; make
 
 # 
 gcc -O2 -Wall -Werror main2.c pgm.c filters.c very_big_sample.o very_tall_sample.o -o main2.out -lpthread
-rm -f results.txt
-rm -f results2.txt
-
+rm -f results.txt results2.txt
+rm -f result-average1.txt result-average2.txt result-average3.txt result-average4.txt result-average5.txt
+rm -f result2-average1.txt result2-average2.txt result2-average3.txt result2-average4.txt result2-average6.txt
 #threads experiment
 for m in 1 2 3 4 5
 do
@@ -34,7 +33,17 @@ do
 done
 
 
-Average time over 10 runs given n threads [4M pixels square image, filter = 9x9, chunk_size = n]
+for m in 1 2 3 4 5
+do
+    echo method ${m} >> results3.txt
+    for f in 4 1 2 3
+    do
+        for x in 1 2 3 4 5 6 7 8 9 10
+        do
+        ./main2.out -t 1 -b 1 -f ${f} -m ${m} -n 8 -c 8 -u 3 >> result3.txt
+        done
+    done 
+done
 
 #gnuplot -e "set terminal pdf; set output 'datat.pdf';set xlabel '# Threads';set ylabel 'Average time over 10 runs (secounds)';set title '[4M pixel square image, filter = 9x9, chunk size = # of Threads]';plot 'result-average1.txt' with linespoints title 'sequential', 'result-average2.txt' with linespoints title 'sharded_rows', 'result-average3.txt' with linespoints title 'sharded_columns column major', 'result-average4.txt' with linespoints title 'sharded_columns row major', 'result-average5.txt' with linespoints title 'work queue'"
 

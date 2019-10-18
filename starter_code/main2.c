@@ -198,6 +198,12 @@ int main(int argc, char **argv)
                 +(double)(stop.tv_nsec - start.tv_nsec) / 1000000000
               );
         }
+        else if(print_num == 3){
+            printf("%d %.2lf\n",filter,
+                (stop.tv_sec - start.tv_sec)
+                +(double)(stop.tv_nsec - start.tv_nsec) / 1000000000
+              );
+        }
     }
     
     if (target_file != NULL)

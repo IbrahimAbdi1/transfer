@@ -4,6 +4,7 @@ method = {}
 def method_init():
     method[1] = 0
     method[2] = 0
+    method[3] = 0
     method[4] = 0
     method[8] = 0
     method[16] = 0
@@ -119,3 +120,51 @@ with open("results2.txt","r") as fp1:
 
 edit_chunk()
 write_average_chunk("result2-average6.txt")
+
+
+
+#-----------------------------------------------------------------------------------------------------
+
+def edit_filter():
+    method[1] = method[1] / 10
+    method[2] = method[2] / 10
+    method[3] = method[3] / 10
+    method[4] = method[4] / 10
+
+
+
+with open("results3.txt","r") as fp:
+    for line in fp:
+        x = line.strip("\n")
+        
+        if x == "method 1":
+            method_init()
+        
+        elif x == "method 2":
+            edit_filter()
+            write_average("result3-average1.txt")
+            method_init()
+        
+        elif x == "method 3":
+            edit_filter()
+            write_average("result3-average2.txt")
+            method_init()
+        
+        elif x == "method 4":
+            edit_filter()
+            write_average("result3-average3.txt")
+            method_init()
+
+        elif x == "method 5":
+            edit_filter()
+            write_average("result3-average4.txt")
+            method_init()
+
+        else:
+            y = x.split(" ")
+            thread = int(y[0])
+            time = float(y[1])
+            method[thread] += time
+
+edit_filter()
+write_average_chunk("result3-average5.txt")
