@@ -30,12 +30,13 @@ with open("results.txt","r") as fp:
             edit_method()
             write_average("result-average1.txt")
             method = {}
+        
         elif x == "method 3":
             edit_method()
             write_average("result-average2.txt")
             method = {}
         
-        elif "method 4":
+        elif x == "method 4":
             edit_method()
             write_average("result-average3.txt")
             method = {}
