@@ -32,3 +32,6 @@ do
         done 
     done
 done
+
+
+# gnuplot -e "set terminal pdf; set output 'datab2.pdf';set xlabel 'Kilobytes';set ylabel 'average time per access (nanosecounds)';set title 'CPU Cache Heirarchy Experiment Small';plot 'part1b_cache_results.txt' with linepoints"
