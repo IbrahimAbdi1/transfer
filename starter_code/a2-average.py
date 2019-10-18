@@ -52,6 +52,7 @@ with open("results.txt","r") as fp:
             method_init()
 
         else:
+            y = x.split(" ")
             thread = int(y[0])
             time = float(y[1])
             method[thread] += time
