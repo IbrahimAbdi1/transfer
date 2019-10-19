@@ -94,7 +94,7 @@ with open("results2.txt","r") as fp1:
         
         elif x == "thread 4":
             edit_chunk()
-            write_average("result2-average2.txt")
+            write_average_chunk("result2-average2.txt")
             method_init()
         
         elif x == "thread 8":
@@ -104,12 +104,12 @@ with open("results2.txt","r") as fp1:
         
         elif x == "thread 16":
             edit_method()
-            write_average("result2-average4.txt")
+            write_average_chunk("result2-average4.txt")
             method_init()
 
         elif x == "thread 32":
             edit_method()
-            write_average("result2-average5.txt")
+            write_average_chunk("result2-average5.txt")
             method_init()
 
         else:
@@ -131,10 +131,17 @@ def edit_filter():
     method[3] = method[3] / 10
     method[4] = method[4] / 10
 
+def write_average2(s):
+    with open(s,"a") as f1:
+                    f1.write("1 " + str(method[4]) + "\n")
+                    f1.write("2 " + str(method[1]) + "\n")
+                    f1.write("3 " + str(method[2]) + "\n")
+                    f1.write("4 " + str(method[3]) + "\n")
 
 
-with open("results3.txt","r") as fp:
-    for line in fp:
+
+with open("results3.txt","r") as fp2:
+    for line in fp2:
         x = line.strip("\n")
         
         if x == "method 1":
@@ -142,22 +149,22 @@ with open("results3.txt","r") as fp:
         
         elif x == "method 2":
             edit_filter()
-            write_average("result3-average1.txt")
+            write_average2("result3-average1.txt")
             method_init()
         
         elif x == "method 3":
             edit_filter()
-            write_average("result3-average2.txt")
+            write_average2("result3-average2.txt")
             method_init()
         
         elif x == "method 4":
             edit_filter()
-            write_average("result3-average3.txt")
+            write_average2("result3-average3.txt")
             method_init()
 
         elif x == "method 5":
             edit_filter()
-            write_average("result3-average4.txt")
+            write_average2("result3-average4.txt")
             method_init()
 
         else:
@@ -167,4 +174,4 @@ with open("results3.txt","r") as fp:
             method[thread] += time
 
 edit_filter()
-write_average_chunk("result3-average5.txt")
+write_average2("result3-average5.txt")
