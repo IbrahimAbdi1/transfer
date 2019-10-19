@@ -39,7 +39,7 @@ do
     do
         for x in 1 2 3 4 5 6 7 8 9 10
         do
-        ./main2.out -t 1 -b 2 -f ${f} -m ${m} -n 8 -c 8 -u 3 >> results3.txt
+        ./main2.out -t 1 -b 2 -f ${f} -m ${z} -n 8 -c 8 -u 3 >> results3.txt
         done
     done 
 done
