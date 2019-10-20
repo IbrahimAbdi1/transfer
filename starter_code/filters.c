@@ -39,15 +39,14 @@ typedef struct work_t
     int32_t id;
 } work;
 
+// global variables for work que 
 int32_t num_chunks;
 int32_t curr_chunks;
 int32_t chunks_per_row;
 int32_t chunks_per_col;
 int32_t curr_chunks2;
 
-// static int32_t Gpix_min = 0;
-// static int32_t Gpix_max = 255;
-// pthread_mutex_t lock;
+
 
 /************** FILTER CONSTANTS*****************/
 /* laplacian */
@@ -175,7 +174,7 @@ void apply_filter2d(const filter *f,
 
 }
 
-
+// Thread Implemation for sharding work 
 void *sharding_row_work(void *args){
     work *w = (work *)args;
     common_work *x = w->common;
@@ -253,6 +252,7 @@ void *sharding_row_work(void *args){
     return NULL;
 }
 
+// Thread Implemation for sharding columns row major 
 void *sharded_columns_row_major_work(void *args){
     work *w = (work *)args;
     common_work *x = w->common;
@@ -328,6 +328,7 @@ void *sharded_columns_row_major_work(void *args){
     return NULL;
 }
 
+// Thread Implemation for sharding columns column-major
 void *sharded_columns_column_major_work(void *args){
     work *w = (work *)args;
     common_work *x = w->common;
@@ -405,8 +406,7 @@ void *sharded_columns_column_major_work(void *args){
 
 }
 
-//stick in loop 
-//
+// Thread implementation for work que
 void *work_queue_work(void * args){
     work *w = (work *)args;
     common_work *x = w->common;
