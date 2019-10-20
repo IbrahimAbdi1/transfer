@@ -8,7 +8,7 @@ main: very_big_sample.o very_tall_sample.o main.c pgm.c filters.c
 	$(CC) $(GCC_OPT) main.c pgm.c filters.c very_big_sample.o very_tall_sample.o -o main.out -lpthread
 
 #TODO: run your script that runs the experiments, collects all necessary data, and produces the graphs
-run: all
+run:
 	./a2-script.sh
 
 
