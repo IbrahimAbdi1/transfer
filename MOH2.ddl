@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS Person (
     LastName VARCHAR(100) NOT NULL,
     Gender VARCHAR(20) NOT NULL,
     BirthDate VARCHAR(100) NOT NULL
-
 );
 
 CREATE TABLE IF NOT EXISTS Address (
@@ -27,31 +26,11 @@ CREATE TABLE IF NOT EXISTS PhoneNumber(
     PRIMARY KEY(uid, Number)
 );
 
-
 CREATE TABLE IF NOT EXISTS Patient(
     uid INT,
     HealthInsurance VARCHAR(100) NOT NULL,
     CONSTRAINT PatientPerson_FK FOREIGN KEY (uid) REFERENCES Person(uid),
     PRIMARY KEY (uid, HealthInsurance)
-);
-
-CREATE TABLE IF NOT EXISTS Physician(
-    uid INT,
-    YearsPracticed INT NOT NULL,
-    YearlySalary INT NOT NULL,
-    MedicalSpecialty VARCHAR(100) NOT NULL,
-    DepartmentName VARCHAR(100) NOT NULL,
-    CONSTRAINT PhysicianPerson_FK FOREIGN KEY (uid) REFERENCES Person(uid),
-    CONSTRAINT DepartmentName_FK FOREIGN KEY (DepartmentName) REFERENCES Department(Name),
-    PRIMARY KEY (uid, MedicalSpecialty)
-);
-
-CREATE TABLE IF NOT EXISTS Nurse(
-    uid INT,
-    YearlySalary INT NOT NULL,
-    YearsPracticed INT NOT NULL,
-    CONSTRAINT NursePerson_FK FOREIGN KEY (uid) REFERENCES Person(uid),
-    PRIMARY KEY(uid, YearlySalary)
 );
 
 CREATE TABLE IF NOT EXISTS Hospital(
@@ -69,20 +48,25 @@ CREATE TABLE IF NOT EXISTS Department (
     PRIMARY KEY (hospitalName, Name)
 );
 
-CREATE TABLE IF NOT EXISTS Nurse_Department(
-    hospitalName VARCHAR(100),
-    DepartmentName VARCHAR(100),
+CREATE TABLE IF NOT EXISTS Nurse(
     uid INT,
-    YearlySalary INT,
-    CONSTRAINT Nurse_Department_Department_Fk FOREIGN KEY(hospitalName,DepartmentName) REFERENCES Department(hospitalName, Name),
-    CONSTRAINT Nurse_Department_Nurse_fk FOREIGN KEY(uid,YearlySalary) REFERENCES Nurse(uid,YearlySalary)
+    YearlySalary INT NOT NULL,
+    YearsPracticed INT NOT NULL,
+    CONSTRAINT NursePerson_FK FOREIGN KEY (uid) REFERENCES Person(uid),
+    PRIMARY KEY(uid, YearlySalary)
 );
 
-CREATE TABLE IF NOT EXISTS Arrived(
-    uid INT, 
-    HealthInsurance VARCHAR(100),
-    hospitalName VARCHAR(100),
-    CONSTRAINT Patient_Arrived_Fk FOREIGN KEY(uid,hospitalName) REFERENCES Patient(uid,hospitalName)
+CREATE TABLE IF NOT EXISTS Physician(
+    uid INT,
+    YearsPracticed INT NOT NULL,
+    YearlySalary INT NOT NULL,
+    MedicalSpecialty VARCHAR(100) NOT NULL,
+    DepartmentName VARCHAR(100) NOT NULL,
+    CONSTRAINT PhysicianPerson_FK FOREIGN KEY (uid) REFERENCES Person(uid),
+    CONSTRAINT DepartmentName_FK FOREIGN KEY (DepartmentName) REFERENCES Department(Name),
+    PRIMARY KEY (uid, MedicalSpecialty)
 );
+
+
 
 
