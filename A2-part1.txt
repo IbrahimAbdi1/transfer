@@ -1,0 +1,201 @@
+1.
+SELECT HName AS name, City AS city
+FROM Hospital
+WHERE AnnualBudget > 3000000
+ORDER BY AnnualBudget DESC;
+2.
+SELECT p.FirstName,p.LastName,p.Gender,p.DateOfBirth
+FROM Person p,Patient a,Diagnose d
+WHERE a.PatientID = p.ID AND d.PatientID = a.PatientID AND 
+d.Disease LIKE "%Cancer" AND  YEAR(CURRENT_DATE)-YEAR(p.DateOfBirth) < 41;
+3a.
+SELECT Specialty,AVG(Salary)
+FROM Physician
+GROUP BY Specialty;
+3b.
+SELECT p.Specialty,AVG(p.Salary)
+FROM Physician p, Hospital h
+WHERE p.HName = h.HName AND h.City = 'Toronto' OR h.City = 'Hamilton'
+GROUP BY p.Specialty
+HAVING count(p.PhysicianID) > 4;
+3c.
+SELECT YearsOfPractice,AVG(Salary)
+FROM Nurse
+GROUP BY YearsOfPractice 
+ORDER BY YearsOfPractice DESC;
+4.
+SELECT HName,count(PatientID)
+FROM Admission
+WHERE Date BETWEEN '2017-08-05' and '2017-08-10'
+GROUP BY HName;
+5a.
+SELECT distinct(d.DName)
+FROM Department d
+WHERE NOT EXISTS (SELECT HName
+                  FROM Hospital
+                  WHERE HName NOT IN
+                  (SELECT d1.HName
+                   FROM Department d1
+                   WHERE d1.DName = d.DName));
+
+5b.
+SELECT Temp3.HName,Temp3.DName
+FROM (SELECT Temp1.HN AS HName,Temp1.DN AS DName,Temp1.countn + Temp2.countp AS NumStaff
+    FROM (SELECT d.DName AS DN, d.HName AS HN, count(n.NurseID) AS countn
+        FROM Nurse_Work n, Department d
+        where n.HName = d.HName and n.DName = d.DName
+        GROUP BY d.HName, d.DName) AS Temp1, 
+        (SELECT d1.DName AS DN1, d1.HName AS HN1, count(p.PhysicianID) AS countp
+        FROM Physician p, Department d1
+        where p.HName = d1.HName and p.DName = d1.DName
+        GROUP BY d1.HName, d1.DName) AS Temp2
+    WHERE Temp1.DN = Temp2.DN1 AND Temp1.HN = Temp2.HN1) AS Temp3
+WHERE NumStaff = (SELECT MAX(NumStaff1)
+FROM (SELECT Temp4.HN2 AS HName,Temp4.DN2 AS DName,Temp4.countn1 + Temp5.countp1 AS NumStaff1
+    FROM (SELECT d2.DName AS DN2, d2.HName AS HN2, count(n1.NurseID) AS countn1
+        FROM Nurse_Work n1, Department d2
+        where n1.HName = d2.HName and n1.DName = d2.DName
+        GROUP BY d2.HName, d2.DName) AS Temp4, 
+        (SELECT d3.DName AS DN3, d3.HName AS HN3, count(p1.PhysicianID) AS countp1
+        FROM Physician p1, Department d3
+        where p1.HName = d3.HName and p1.DName = d3.DName
+        GROUP BY d3.HName, d3.DName) AS Temp5
+    WHERE Temp4.DN2 = Temp5.DN3 AND Temp4.HN2 = Temp5.HN3) AS Temp6);
+
+
+
+5c.
+SELECT d.DName
+FROM Department d
+WHERE NOT EXISTS(SELECT d1.DName
+                  FROM Department d1
+                  WHERE d1.DName = d.DName AND d1.HName <> d.HName);
+
+6a.
+SELECT FirstName, LastName
+FROM Person
+WHERE ID IN(SELECT NurseID
+FROM Patient
+GROUP BY NurseID
+HAVING count(PatientID) < 3);
+
+6b.
+SELECT d.PatientID
+FROM Diagnose d, Patient p
+WHERE d.Prognosis = 'poor' AND d.PatientID = p.PatientID 
+AND p.NurseID IN (SELECT NurseID
+FROM Patient
+GROUP BY NurseID
+HAVING count(PatientID) < 3);
+
+7. 
+
+  SELECT Temp2.DATE
+  FROM (SELECT Date,count(PatientID) AS numAdmissions
+            FROM Admission
+            WHERE HName = 'Hamilton General Hospital'
+            GROUP BY Date) AS Temp2
+   WHERE Temp2.numAdmissions = (SELECT MAX(numAdmissions)
+  FROM (SELECT Date,count(PatientID) AS numAdmissions
+  FROM Admission
+  WHERE HName = 'Hamilton General Hospital'
+  GROUP BY Date) AS Temp3);
+
+8.
+
+SELECT Temp3.DrugCode,Temp3.sold
+FROM (SELECT d.DrugCode,d.UnitCost*Temp1.numSold AS sold
+    FROM (SELECT pre.DrugCode,count(pre.PatientID) AS numSold
+    FROM Prescription pre
+    GROUP BY pre.DrugCode) AS Temp1, Drug d
+    WHERE Temp1.DrugCode = d.DrugCode) AS Temp3
+WHERE Temp3.sold = (SELECT MAX(Temp4.sold)
+                        FROM (SELECT d1.DrugCode,d1.UnitCost*Temp2.numSold AS sold
+                                FROM (SELECT pre1.DrugCode,count(pre1.PatientID) AS numSold
+                                FROM Prescription pre1
+                                GROUP BY pre1.DrugCode) AS Temp2, Drug d1
+                                WHERE Temp2.DrugCode = d1.DrugCode) AS Temp4);
+
+9.
+
+SELECT ID,FirstName, LastName,Gender
+FROM Person
+WHERE ID IN (SELECT d.PatientID
+FROM Diagnose d
+WHERE d.Disease = "Diabetes" AND d.PatientID NOT IN (SELECT PatientID
+FROM Take
+WHERE TestID IN (SELECT TestID
+FROM MedicalTest
+WHERE Name = "Red Blood Cell" OR Name = "Lymphocytes")));
+
+10a.
+SELECT DISTINCT d.PatientID,Disease,Prognosis
+FROM Diagnose d, Physician p
+WHERE d.PhysicianID = p.PhysicianID AND p.DName = "Intensive Care Unit" AND p.HName = "University of Toronto Medical Centre"
+GROUP BY d.PatientID,Disease,Prognosis;
+
+10b.
+
+SELECT t.PatientID, SUM(m.FEE)
+FROM Take t, MedicalTest m
+WHERE  t.TestID = m.TestID AND t.PatientID IN
+(SELECT PatientID
+FROM Diagnose
+WHERE PhysicianID IN (SELECT p.PhysicianID
+                        FROM Physician p
+                        WHERE p.DName = "Intensive Care Unit" AND p.HName = "University of Toronto Medical Centre"))
+GROUP BY t.PatientID
+ORDER BY SUM(m.FEE) DESC;
+
+SELECT t.PatientID, SUM(m.FEE)
+FROM Take t, MedicalTest m
+WHERE  t.TestID = m.TestID AND t.PatientID IN
+(SELECT d.PatientID
+FROM Diagnose d, Physician p
+WHERE d.PhysicianID = p.PhysicianID AND p.DName = "Intensive Care Unit" AND p.HName = "University of Toronto Medical Centre")
+GROUP BY t.PatientID
+ORDER BY SUM(m.FEE) DESC;
+
+
+
+10c.
+SELECT pre.PatientID,SUM(d.UnitCost) as totalCost
+FROM Prescription pre,Drug d
+WHERE pre.DrugCode = d.DrugCode AND pre.PatientID IN 
+(SELECT d.PatientID
+FROM Diagnose d, Physician p
+WHERE d.PhysicianID = p.PhysicianID AND p.DName = "Intensive Care Unit" AND p.HName = "University of Toronto Medical Centre")
+GROUP BY pre.PatientID
+ORDER BY totalCost DESC;
+
+11. 
+SELECT ID, FirstName, LastName
+FROM Person
+WHERE ID IN
+(SELECT DISTINCT PatientID
+FROM Admission
+WHERE Category = "urgent" OR Category = "standard"
+GROUP BY PatientID 
+HAVING count(HName) = 2);
+
+
+Insert Hospital
+insert into Hospital(HName,AnnualBudget,City,Street) values ();
+
+Insert Department
+insert into Department(DName,HName,Budget) values ();
+
+Insert Person
+insert into Person(ID,FirstName,LastName,Gender,PostalCode,Street,City,Province,DateOfBirth) values ();
+
+Insert Patient
+insert into Patient(PatientID,InsuranceType,NurseID) values ();
+
+Insert Physician
+insert into Physician(PhysicianID,YearsOfPractice,Salary,Specialty,DName,HName) values ();
+
+Insert Nurse
+insert into Nurse(NurseID,YearsOfPractice,Salary) values ();
+
+Insert Diagnose
+insert into Diagnose(PhysicianID,PatientID,Disease,Prognosis,Date) values ();
