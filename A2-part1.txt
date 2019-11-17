@@ -77,7 +77,7 @@ FROM Person
 WHERE ID IN(SELECT NurseID
 FROM Patient
 GROUP BY NurseID
-HAVING count(PatientID) < 3);
+HAVING count(PatientID) < 4);
 
 6b.
 SELECT d.PatientID
@@ -86,16 +86,16 @@ WHERE d.Prognosis = 'poor' AND d.PatientID = p.PatientID
 AND p.NurseID IN (SELECT NurseID
 FROM Patient
 GROUP BY NurseID
-HAVING count(PatientID) < 3);
+HAVING count(PatientID) < 4);
 
 7. 
 
-  SELECT Temp2.DATE
-  FROM (SELECT Date,count(PatientID) AS numAdmissions
-            FROM Admission
-            WHERE HName = 'Hamilton General Hospital'
-            GROUP BY Date) AS Temp2
-   WHERE Temp2.numAdmissions = (SELECT MAX(numAdmissions)
+SELECT Temp2.DATE
+FROM (SELECT Date,count(PatientID) AS numAdmissions
+        FROM Admission
+        WHERE HName = 'Hamilton General Hospital'
+        GROUP BY Date) AS Temp2
+WHERE Temp2.numAdmissions = (SELECT MAX(numAdmissions)
   FROM (SELECT Date,count(PatientID) AS numAdmissions
   FROM Admission
   WHERE HName = 'Hamilton General Hospital'
