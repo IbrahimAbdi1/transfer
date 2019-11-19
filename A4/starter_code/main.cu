@@ -96,11 +96,35 @@ int main(int argc, char **argv) {
   {
     std::string gpu_file = "1" + base_gpu_output_filename;
     pgm_image gpu_output_img;
+    pgm_image *gpu_output_img_d;
+    int32_t *deviceMatrix;
     copy_pgm_image_size(&source_img, &gpu_output_img);
+
+    cudaMalloc(&gpu_output_img_d,sizeof(pgm_image));
+    int size = gpu_output_img.width*gpu_output_img.height*sizeof(int32_t);
+    cudaMalloc(&deviceMatrix,size);
+    float transfer_in;
+    // cuda memes
+    cudaEvent_t start, stop;
+
+    // cuda creats
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    // time for transfer in
+    cudaEventRecord(start);
+    cudaMemcpy(gpu_output_img_d,&gpu_output_img,sizeof(pgm_image),cudaMemcpyHostToDevice);
+    cudaMemcpy(deviceMatrix,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(gpu_output_img_d->matrix),&(deviceMatrix),sizeof(int32_t *),cudaMemcpyHostToDevice);
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&transfer_in, start, stop);
+
     // Start time
     // run_kernel1(args...);  // From kernels.h
     // End time
     // print_run(args...)     // Defined on the top of this file
+    printf("Memcopy time %14.6f \n",transfer_in);
     save_pgm_to_file(gpu_file.c_str(), &gpu_output_img);
     destroy_pgm_image(&gpu_output_img);
   }
