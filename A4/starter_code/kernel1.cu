@@ -18,11 +18,27 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
   
+  //get total available threads
+
+  // if threadCount < pixelcount call kernel1 with appropriate params
+
+  // else call kernel1 multple times ig
+
 }
 
-__global__ void kernel1(const int8_t *filter, int32_t dimension,
-                        const int32_t *input, int32_t *output, int32_t width,
-                        int32_t height) {}
+__global__ void kernel1(const int8_t *filter, int32_t dimension, const int32_t *input, 
+int32_t *output, int32_t width,int32_t height) {
+
+  // get index given tid
+
+  // call apply2d on input @ index and store it  on output @ index
+
+                          
+}
 
 __global__ void normalize1(int32_t *image, int32_t width, int32_t height,
-                           int32_t smallest, int32_t biggest) {}
+                           int32_t smallest, int32_t biggest) {
+
+  // reductions memes 
+    
+}
