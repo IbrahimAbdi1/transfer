@@ -18,18 +18,20 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
 
-  struct cudaDeviceProp a;
-  cudaGetDeviceProperties(&a,dev);
+  int pixelCount = height*width;
+  kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height);
   
   // get total available threads
-  int threadCount = 
+   
 
   // if threadCount < pixelcount call kernel1 with appropriate params
 
   // else call kernel1 multple times ig
 
   
-  // wait for all threads 
+  // wait for all threads
+
+   
   
   // then call normalize 
 }
@@ -43,8 +45,27 @@ int32_t *output, int32_t width,int32_t height) {
   if(idx < height*width){
     int row = idx/width;
     int column = idx%width;
-    int_32t new_pix = apply2d(filter,dimension,input,output,width,height,row,column);
-    output[idx] = new_pix;
+   
+   // apply2d function
+    int32_t sum = 0;
+    int filter_centre = dimension/2;
+    
+    int s_row = row - filter_centre;
+    int s_column = column - filter_centre;
+    for(int r = 0;r<dimension;r++){
+        int n_row = s_row + r;
+        for(int c = 0;c<dimension;c++){
+            int n_column = s_column + c;
+            if((n_row >= 0) && (n_column >= 0) && (n_column < width) && (n_row < height)){
+                sum += (filter[r*dimension + c]) * (input[n_row*width + n_column]);
+                
+            }
+        }
+    }
+
+
+
+    output[idx] = sum;
 
   }
 
@@ -59,28 +80,4 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height,
 }
 
 
-__global__ int access(int row,int column,int width){
-    return row*width+column;
-}
 
-__global__ int32_t apply2d(const int8_t *f,  int32_t dimension,const int32_t *original, int32_t *target,
-        int32_t width, int32_t height,
-        int row, int column)
-{
-    int32_t sum = 0;
-    int filter_centre = dimension/2;
-    
-    int s_row = row - filter_centre;
-    int s_column = column - filter_centre;
-    for(int r = 0;r<dimension;r++){
-        int n_row = s_row + r;
-        for(int c = 0;c<dimension;c++){
-            int n_column = s_column + c;
-            if((n_row >= 0) && (n_column >= 0) && (n_column < width) && (n_row < height)){
-                sum += (f[access(r,c,dimension)]) * (original[access(n_row,n_column,width)]);
-                
-            }
-        }
-    }
-    return sum;
-}
