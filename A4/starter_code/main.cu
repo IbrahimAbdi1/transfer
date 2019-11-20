@@ -55,6 +55,13 @@ int main(int argc, char **argv) {
       return 0;
     }
   }
+  
+  int8_t lp3_m[] =
+    {
+        0, 1, 0,
+        1, -4, 1,
+        0, 1, 0,
+    };
 
   pgm_image source_img;
   init_pgm_image(&source_img);
@@ -96,14 +103,17 @@ int main(int argc, char **argv) {
   {
     std::string gpu_file = "1" + base_gpu_output_filename;
     pgm_image gpu_output_img;
-    pgm_image *gpu_output_img_d;
-    int32_t *deviceMatrix;
+    int32_t *deviceMatrix_IN;
+    int32_t *deviceMatrix_OUT;
+    int8_t *deviceFilter;
     copy_pgm_image_size(&source_img, &gpu_output_img);
 
-    cudaMalloc(&gpu_output_img_d,sizeof(pgm_image));
+   
     int size = gpu_output_img.width*gpu_output_img.height*sizeof(int32_t);
-    cudaMalloc(&deviceMatrix,size);
-    float transfer_in;
+    cudaMalloc(&deviceMatrix_IN,size);
+    cudaMalloc(&deviceMatrix_OUT,size);
+    cudaMalloc(&deviceFilter,9*sizeof(int8_t));
+    float transfer_in,compute_time;
     // cuda memes
     cudaEvent_t start, stop;
 
@@ -113,19 +123,25 @@ int main(int argc, char **argv) {
 
     // time for transfer in
     cudaEventRecord(start);
-    cudaMemcpy(gpu_output_img_d,&gpu_output_img,sizeof(pgm_image),cudaMemcpyHostToDevice);
-    cudaMemcpy(deviceMatrix,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
-    cudaMemcpy(&(gpu_output_img_d->matrix),&(deviceMatrix),sizeof(int32_t *),cudaMemcpyHostToDevice);
+    cudaMemcpy(deviceMatrix_IN,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
+    cudaMemcpy(deviceMatrix_OUT,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
+    cudaMemcpy(deviceFilter,lp3_m,9*sizeof(int8_t),cudaMemcpyHostToDevice);
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&transfer_in, start, stop);
 
     // Start time
-    // run_kernel1(args...);  // From kernels.h
+    cudaEventRecord(start);
+
+    run_kernel1(deviceFilter,3,deviceMatrix_IN,deviceMatrix_OUT,gpu_output_img.width,gpu_output_img.height);  // From kernels.h
     // End time
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&compute_time, start, stop);
     // print_run(args...)     // Defined on the top of this file
-    printf("Memcopy time %14.6f \n",transfer_in);
+    printf("Memcopy time %14.6f Compute time\n",transfer_in);
     save_pgm_to_file(gpu_file.c_str(), &gpu_output_img);
+    
     destroy_pgm_image(&gpu_output_img);
   }
 
