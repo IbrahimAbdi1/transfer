@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include "pgm.h"
-
+#include "kernel.cu"
 /* Use this function to print the time of each of your kernels.
  * The parameter names are intuitive, but don't hesitate to ask
  * for clarifications.
