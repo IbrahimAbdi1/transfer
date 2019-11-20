@@ -18,12 +18,17 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
   
-  //get total available threads
+  // get total available threads
+  int threadCount = 
 
   // if threadCount < pixelcount call kernel1 with appropriate params
 
   // else call kernel1 multple times ig
 
+  
+  // wait for all threads 
+  
+  // then call normalize 
 }
 
 __global__ void kernel1(const int8_t *filter, int32_t dimension, const int32_t *input, 
