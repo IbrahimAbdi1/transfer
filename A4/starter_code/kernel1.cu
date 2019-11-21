@@ -15,7 +15,7 @@
 #include "kernels.h"
 
 void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
-                 int32_t *output, int32_t width, int32_t height) {
+                 int32_t *output, int32_t width, int32_t height,int *global_min,int *global_max) {
   // Figure out how to split the work into threads and call the kernel below.
 
   int pixelCount = height*width;
@@ -46,7 +46,7 @@ int32_t *output, int32_t width,int32_t height) {
     int row = idx/width;
     int column = idx%width;
    
-   // apply2d function
+    // apply2d function
     int32_t sum = 0;
     int filter_centre = dimension/2;
     
@@ -75,7 +75,7 @@ int32_t *output, int32_t width,int32_t height) {
 __global__ void normalize1(int32_t *image, int32_t width, int32_t height,
                            int32_t smallest, int32_t biggest) {
 
-  // reductions memes 
+  // reduction memes 
     
 }
 
