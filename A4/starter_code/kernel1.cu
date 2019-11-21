@@ -59,10 +59,10 @@ int32_t *output, int32_t width,int32_t height,int32_t *g_min,int32_t *g_max) {
 
     output[idx] = sum;
 
-    if(sum < g_min){
+    if(sum < *(g_min)){
       g_min = sum;
     }
-    if(sum > g_max){
+    if(sum > *(g_max)){
       g_max = sum;
     }
 
