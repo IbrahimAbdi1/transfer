@@ -129,8 +129,8 @@ int main(int argc, char **argv) {
     cudaMemcpy(deviceMatrix_IN,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
     cudaMemcpy(deviceMatrix_OUT,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
     cudaMemcpy(deviceFilter,lp3_m,9*sizeof(int8_t),cudaMemcpyHostToDevice);
-    cudaMemcpyToSymbol(g_min,&min,sizeof(int32_t));
-    cudaMemcpyToSymbol(g_max,&max,sizeof(int32_t));
+    cudaMemcpy(g_min,&min,sizeof(int32_t),cudaMemcpyHostToDevice);
+    cudaMemcpy(g_max,&max,sizeof(int32_t),cudaMemcpyHostToDevice);
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&transfer_in, start, stop);
