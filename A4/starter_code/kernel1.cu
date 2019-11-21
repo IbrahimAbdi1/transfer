@@ -19,17 +19,17 @@
 
 
 void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
-                 int32_t *output, int32_t width, int32_t height,int *global_min,int *global_max) {
+                 int32_t *output, int32_t width, int32_t height,int32_t *global_min,int32_t *global_max) {
   // Figure out how to split the work into threads and call the kernel below.
 
   int pixelCount = height*width;
   kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height,global_min,global_max);
-  normalize1<<<pixelCount/1024 + 1,1024>>>(output,global_min,global_max);
+  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,*global_min,*global_max);
    
 }
 
 __global__ void kernel1(const int8_t *filter, int32_t dimension, const int32_t *input, 
-int32_t *output, int32_t width,int32_t height,int *g_min,int *g_max) {
+int32_t *output, int32_t width,int32_t height,int32_t *g_min,int32_t *g_max) {
 
   // get index given tid
   int idx = blockIdx.x * blockDim.x + threadIdx.x;

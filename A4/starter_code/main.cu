@@ -103,16 +103,16 @@ int main(int argc, char **argv) {
   {
     std::string gpu_file = "1" + base_gpu_output_filename;
     pgm_image gpu_output_img;
-    int *g_min,*g_max;
-    int min = 0, max = 255;
+    int32_t *g_min,*g_max;
+    int32_t min = 0, max = 255;
     int32_t *deviceMatrix_IN,*deviceMatrix_OUT;
     int8_t *deviceFilter;
     copy_pgm_image_size(&source_img, &gpu_output_img);
 
    
     int size = gpu_output_img.width*gpu_output_img.height*sizeof(int32_t);
-    cudaMalloc(&g_min,sizeof(int));
-    cudaMalloc(&g_max,sizeof(int));
+    cudaMalloc(&g_min,sizeof(int32_t));
+    cudaMalloc(&g_max,sizeof(int32_t));
     cudaMalloc(&deviceMatrix_IN,size);
     cudaMalloc(&deviceMatrix_OUT,size);
     cudaMalloc(&deviceFilter,9*sizeof(int8_t));
@@ -129,8 +129,8 @@ int main(int argc, char **argv) {
     cudaMemcpy(deviceMatrix_IN,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
     cudaMemcpy(deviceMatrix_OUT,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
     cudaMemcpy(deviceFilter,lp3_m,9*sizeof(int8_t),cudaMemcpyHostToDevice);
-    cudaMemcpyToSymbol(g_min,&min,sizeof(int));
-    cudaMemcpyToSymbol(g_max,&max,sizeof(int));
+    cudaMemcpyToSymbol(g_min,&min,sizeof(int32_t));
+    cudaMemcpyToSymbol(g_max,&max,sizeof(int32_t));
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&transfer_in, start, stop);
