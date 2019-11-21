@@ -16,4 +16,5 @@
 
 __global__ void dot_kernel1(float *g_idata1, float *g_idata2, float *g_odata)
 {
+    
 }
