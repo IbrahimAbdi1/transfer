@@ -61,6 +61,9 @@ int32_t *output, int32_t width,int32_t height) {
             }
         }
     }
+    output[idx] = sum;
+
+  }
 
 
                           
