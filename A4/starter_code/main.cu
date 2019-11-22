@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
     // TransferOut
     cudaMemcpy(gpu_output_img.matrix,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
 
-    printf("Memcopy time %14.6f Compute time %12.6f\n",transfer_in);
+    //printf("Memcopy time %14.6f Compute time %12.6f\n",transfer_in);
     save_pgm_to_file(gpu_file.c_str(), &gpu_output_img);
     
     destroy_pgm_image(&gpu_output_img);
