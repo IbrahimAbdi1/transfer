@@ -24,11 +24,11 @@ int32_t *d_min_max;
 void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
-  int32_t hmn[2]
+  
   cudaMalloc(&d_min_max,sizeof(int32_t)*2);
   int pixelCount = width*height;
   kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height);
-  printf("hello\n");
+  
   // reduction memes until finnito
   find_min_max<<<1,pixelCount>>>(output,d_min_max);
   
