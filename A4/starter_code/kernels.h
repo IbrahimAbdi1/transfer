@@ -21,6 +21,7 @@
  * unfortunately, so don't use those for variable names.*/
 
 int32_t *d_min_max;
+__global__ void find_min_max(int32_t *arr,int32_t *max,int32_t *min);
 
 void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,
                   int32_t *output, int32_t width, int32_t height);
