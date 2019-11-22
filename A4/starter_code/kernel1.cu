@@ -13,6 +13,9 @@
  */
 
 #include "kernels.h"
+#include <stdio.h>
+#include <string>
+#include <unistd.h>
 
 
 int32_t *d_min_max;
