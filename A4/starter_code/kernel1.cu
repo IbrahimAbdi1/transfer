@@ -22,30 +22,29 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
 
-  int pixelCount = height*width;
-  int32_t *g_min,*g_max;
-  int32_t min = 0, max = 255;
-  cudaMalloc(&g_min,sizeof(int32_t));
-  cudaMalloc(&g_max,sizeof(int32_t));
-  cudaMemcpy(g_min,&min,sizeof(int32_t),cudaMemcpyHostToDevice);
-  cudaMemcpy(g_max,&max,sizeof(int32_t),cudaMemcpyHostToDevice);
+  kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height);
+  
+  // reduction memes until finnito
 
-  kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height,g_min,g_max);
-  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,*g_min,*g_max);
+
+
+  //normalize1<<<pixelCount/1024 + 1,1024>>>(); // dont know 
    
 }
 
+
+
 __global__ void kernel1(const int8_t *filter, int32_t dimension, const int32_t *input, 
-int32_t *output, int32_t width,int32_t height,int32_t *g_min,int32_t *g_max) {
+int32_t *output, int32_t width,int32_t height) {
 
   // get index given tid
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   // call apply2d on input @ index and store it  on output @ index
   if(idx < height*width){
     int row = idx/width;
-    int column = idx%width;
+    int column = idx%width; // expensive 
    
-    // apply2d function
+    // apply2d function (really bad need fix)
     int32_t sum = 0;
     int filter_centre = dimension/2;
     
@@ -63,30 +62,71 @@ int32_t *output, int32_t width,int32_t height,int32_t *g_min,int32_t *g_max) {
     }
 
 
-
-    output[idx] = sum;
-
-    if(sum < *(g_min)){
-      *g_min = sum;
-    }
-    if(sum > *(g_max)){
-      *g_max = sum;
-    }
-
-  }
-
                           
 }
 
 __global__ void normalize1(int32_t *image, int32_t width, int32_t height,
                            int32_t smallest, int32_t biggest) {
 
-  // reduction memes 
+  // reduction needs to happen maybe 
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  if(smallest != biggest){
+  if(smallest != biggest && idx < width * height){
     image[idx] = ((image[idx] - smallest) * 255) / (biggest - smallest);
   }
 }
 
 
+// problem ony works with one block
+__global__ void find_min_max(int32_t *arr,int32_t *max,int32_t *min){
+    // index 
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    int blocksize = blockDim.x;
+    //load to share data 2 share datas one for min and max 
+    extern __shared__ int32_t max_data[];
+    extern __shared__ int32_t min_data[];
 
+    max_data[tid] = arr[tid];
+    __syncthreads();
+
+    // need first stride for filling in min
+    int first_stride = blocksize/2;
+    if(tid < first_stride){
+        
+        if(max_data[tid] < max_data[tid + first_stride]){
+            int32_t temp = max_data[tid];
+            max_data[tid] = max_data[tid + first_stride];
+            min_data[tid] = temp;
+        }
+
+        else(max_data[tid] >= max_data[tid + first_stride]){
+            min_data[tid] = max_data[tid + first_stride];
+        }
+    }
+    __syncthreads();
+    
+    for(int stride = first_stride/2;stride > 0; stride>>= 1){
+        if(tid < stride){
+            
+            if(max_data[tid] < max_data[tid + stride]){
+                int32_t temp = max_data[tid];
+                max_data[tid] = max_data[tid + stride];
+                if(min_data[tid] > temp){
+                    min_data[tid] = temp;
+                }
+            }
+            else if(max_data[tid] >= max_data[tid + stride]){
+                if(min_data[tid] > max_data[tid + stride]){
+                    min_data[tid] = max_data[tid + stride];
+                }
+            }
+        }
+
+       __syncthreads();
+
+    }
+    
+
+    *min = min_data[0];
+    *max = max_data[0]; 
+
+}

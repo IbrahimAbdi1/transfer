@@ -18,6 +18,8 @@
 
 #include "pgm.h"
 #include "kernel1.cu"
+
+int32_t *d_min_max;
 /* Use this function to print the time of each of your kernels.
  * The parameter names are intuitive, but don't hesitate to ask
  * for clarifications.
@@ -104,6 +106,7 @@ int main(int argc, char **argv) {
     std::string gpu_file = "1" + base_gpu_output_filename;
     pgm_image gpu_output_img;
     int32_t *deviceMatrix_IN,*deviceMatrix_OUT;
+    
     int8_t *deviceFilter;
     copy_pgm_image_size(&source_img, &gpu_output_img);
 
@@ -112,6 +115,7 @@ int main(int argc, char **argv) {
     
     cudaMalloc(&deviceMatrix_IN,size);
     cudaMalloc(&deviceMatrix_OUT,size);
+    cudaMalloc(&d_min_max,sizeof(int32_t)*2);
     cudaMalloc(&deviceFilter,9*sizeof(int8_t));
     float transfer_in,compute_time;
     // cuda memes
@@ -126,6 +130,7 @@ int main(int argc, char **argv) {
     cudaMemcpy(deviceMatrix_IN,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
     cudaMemcpy(deviceMatrix_OUT,gpu_output_img.matrix,size, cudaMemcpyHostToDevice);
     cudaMemcpy(deviceFilter,lp3_m,9*sizeof(int8_t),cudaMemcpyHostToDevice);
+    
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&transfer_in, start, stop);
