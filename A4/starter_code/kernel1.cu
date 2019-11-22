@@ -24,14 +24,15 @@ int32_t *d_min_max;
 void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
+  int32_t hmn[2]
   cudaMalloc(&d_min_max,sizeof(int32_t)*2);
   int pixelCount = width*height;
   kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height);
   printf("hello\n");
   // reduction memes until finnito
   find_min_max<<<1,pixelCount>>>(output,d_min_max);
-  printf("hello2 %d\n", d_min_max[1]);
-  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max[0],d_min_max[1]); // dont know 
+  
+  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,*d_min_max); // dont know 
    
 }
 
@@ -71,12 +72,12 @@ int32_t *output, int32_t width,int32_t height) {
                           
 }
 
-__global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t smallest, int32_t biggest) {
+__global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t *smallest_biggest) {
 
   // reduction needs to happen maybe 
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  if(smallest != biggest && idx < width * height){
-    image[idx] = ((image[idx] - smallest) * 255) / (biggest - smallest);
+  if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
+    image[idx] = ((image[idx] - smallest_biggest[0]) * 255) / (smallest_biggest[1] - smallest_biggest[0]);
   }
 }
 
