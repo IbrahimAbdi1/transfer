@@ -144,6 +144,10 @@ int main(int argc, char **argv) {
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&compute_time, start, stop);
     // print_run(args...)     // Defined on the top of this file
+
+    // TransferOut
+    cudaMemcpy(gpu_output_img.matrix,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
+
     printf("Memcopy time %14.6f Compute time %12.6f\n",transfer_in);
     save_pgm_to_file(gpu_file.c_str(), &gpu_output_img);
     

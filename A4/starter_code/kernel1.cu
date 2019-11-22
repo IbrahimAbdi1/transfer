@@ -26,10 +26,9 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height);
   
   // reduction memes until finnito
+  find_min_max<<<1,pixelCount>>>(output,&d_min_max[1],&d_min_max[0]);
 
-
-
-  //normalize1<<<pixelCount/1024 + 1,1024>>>(); // dont know 
+  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max[0],d_min_max[1]); // dont know 
    
 }
 
