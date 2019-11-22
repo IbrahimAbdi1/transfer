@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     
     cudaMalloc(&deviceMatrix_IN,size);
     cudaMalloc(&deviceMatrix_OUT,size);
-    cudaMalloc(&d_min_max,sizeof(int32_t)*2);
+    
     cudaMalloc(&deviceFilter,9*sizeof(int8_t));
     float transfer_in,compute_time;
     // cuda memes
