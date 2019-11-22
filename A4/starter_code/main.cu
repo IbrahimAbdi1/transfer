@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
     // Start time
     cudaEventRecord(start);
 
-    run_kernel1(deviceFilter,3,deviceMatrix_IN,deviceMatrix_OUT,gpu_output_img.width,gpu_output_img.height,g_min,g_max);  // From kernels.h
+    run_kernel1(deviceFilter,3,deviceMatrix_IN,deviceMatrix_OUT,gpu_output_img.width,gpu_output_img.height);  // From kernels.h
     // End time
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
