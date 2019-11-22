@@ -22,6 +22,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
 
+  int pixelCount = width*height;
   kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height);
   
   // reduction memes until finnito
@@ -65,8 +66,7 @@ int32_t *output, int32_t width,int32_t height) {
                           
 }
 
-__global__ void normalize1(int32_t *image, int32_t width, int32_t height,
-                           int32_t smallest, int32_t biggest) {
+__global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t smallest, int32_t biggest) {
 
   // reduction needs to happen maybe 
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -125,8 +125,9 @@ __global__ void find_min_max(int32_t *arr,int32_t *max,int32_t *min){
 
     }
     
-
-    *min = min_data[0];
-    *max = max_data[0]; 
+    if(tid == 0){
+        min[0] = min_data[0];
+        max[0] = max_data[0]; 
+    }
 
 }
