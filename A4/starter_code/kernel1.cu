@@ -32,7 +32,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   // reduction memes until finnito
   find_min_max<<<1,pixelCount>>>(output,d_min_max);
   
-  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,*d_min_max); // dont know 
+  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max); // dont know 
    
 }
 
