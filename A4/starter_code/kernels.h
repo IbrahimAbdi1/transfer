@@ -20,7 +20,7 @@
  * Be careful: "min" and "max" are names of CUDA library functions
  * unfortunately, so don't use those for variable names.*/
 
-int32_t *d_min_max;
+
 __global__ void find_min_max(int32_t *arr,int32_t *max,int32_t *min);
 
 void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,
