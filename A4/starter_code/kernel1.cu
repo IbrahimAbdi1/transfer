@@ -83,16 +83,16 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
 __global__ void find_min_max(int32_t *arr,int32_t *max,int32_t *min){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int blocksize = blockDim.x;
+    
     //load to share data 2 share datas one for min and max 
-    __shared__ int32_t max_data[blocksize];
-    __shared__ int32_t min_data[blocksize];
+    extern __shared__ int32_t max_data[];
+    extern __shared__ int32_t min_data[];
 
     max_data[tid] = arr[tid];
     __syncthreads();
 
     // need first stride for filling in min
-    int first_stride = blocksize/2;
+    int first_stride = blockDim.x/2;
     if(tid < first_stride){
         
         if(max_data[tid] < max_data[tid + first_stride]){
@@ -100,8 +100,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max,int32_t *min){
             max_data[tid] = max_data[tid + first_stride];
             min_data[tid] = temp;
         }
-
-        else(max_data[tid] >= max_data[tid + first_stride]){
+        else{
             min_data[tid] = max_data[tid + first_stride];
         }
     }
