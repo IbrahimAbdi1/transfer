@@ -25,7 +25,7 @@ const int8_t FILTER[] = {
         0, 1, 0,
     };
 
-const int FILTER_DIMENSION = 9;
+const int FILTER_DIMENSION = 3;
 
 // ============================================================================
 
