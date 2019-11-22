@@ -82,8 +82,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max,int32_t *min){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blocksize = blockDim.x;
     //load to share data 2 share datas one for min and max 
-    extern __shared__ int32_t max_data[];
-    extern __shared__ int32_t min_data[];
+    __shared__ int32_t max_data[blocksize];
+    __shared__ int32_t min_data[blocksize];
 
     max_data[tid] = arr[tid];
     __syncthreads();
