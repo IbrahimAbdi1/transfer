@@ -17,9 +17,9 @@
 #include <unistd.h>
 
 #include "pgm.h"
-#include "kernel1.cu"
+#include "kernels.h"
 
-int32_t *d_min_max;
+
 /* Use this function to print the time of each of your kernels.
  * The parameter names are intuitive, but don't hesitate to ask
  * for clarifications.
