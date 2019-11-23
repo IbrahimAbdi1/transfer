@@ -43,7 +43,8 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   
   printf("hehe %d %d %d %d\n",input[0],input[1],input[2],input[3]);
   kernel1<<<pixelCount/1024 + 1,pixelCount>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
-  cudaDeviceSynchronize();
+  cudaGetLastError();
+  
    //cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
    //printf("hehe2 %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
@@ -85,7 +86,7 @@ int32_t *output, int32_t width,int32_t height) {
     }
     //printf("id %d has sum %d\n",idx,sum);
     output[idx] = sum;
-    //printf("output at %d has sum %d\n",idx,output[idx]);
+    printf("output at %d has sum %d\n",idx,output[idx]);
     
   }
 
