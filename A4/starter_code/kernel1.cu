@@ -113,40 +113,40 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     
     //load to share data 2 share datas one for min and max 
-    extern __shared__ int32_t max_data[blockDim.x];
-    extern __shared__ int32_t min_data[blockDim.x];
+    extern __shared__ int32_t max_min_data[];
+    
 
-    max_data[tid] = arr[tid];
+    max_min_data[tid] = arr[tid];
     __syncthreads();
     
     // need first stride for filling in min
     int first_stride = blockDim.x/2;
     if(tid < first_stride){
         printf("first stride %d vs %d\n",max_data[tid],max_data[tid + first_stride]);
-        if(max_data[tid] < max_data[tid + first_stride]){
-            int32_t temp = max_data[tid];
-            max_data[tid] = max_data[tid + first_stride];
-            min_data[tid] = temp;
+        if(max_min_data[tid] < max_min_data[tid + first_stride]){
+            int32_t temp = max_min_data[tid];
+            max_min_data[tid] = max_min_data[tid + first_stride];
+            max_min_data[blockDim.x+tid] = temp;
         }
         else{
-            min_data[tid] = max_data[tid + first_stride];
+            max_min_data[blockDim.x+tid] = max_min_data[tid + first_stride];
         }
     }
     __syncthreads();
-    printf("\n first stride Min %d Max %d\n", min_data[0],max_data[0]);
+    
     for(int stride = first_stride/2;stride > 0; stride>>= 1){
         if(tid < stride){
             
-            if(max_data[tid] < max_data[tid + stride]){
-                int32_t temp = max_data[tid];
-                max_data[tid] = max_data[tid + stride];
+            if(max_min_data[tid] < max_min_data[tid + stride]){
+                int32_t temp = max_min_data[tid];
+                max_min_data[tid] = max_min_data[tid + stride];
                 if(min_data[tid] > temp){
-                    min_data[tid] = temp;
+                    max_min_data[blockDim.x+tid] = temp;
                 }
             }
-            else if(max_data[tid] >= max_data[tid + stride]){
-                if(min_data[tid] > max_data[tid + stride]){
-                    min_data[tid] = max_data[tid + stride];
+            else if(max_min_data[tid] >= max_min_data[tid + stride]){
+                if(max_min_data[blockDim.x+tid] > max_min_data[tid + stride]){
+                    max_min_data[blockDim.x+tid] = max_min_data[tid + stride];
                 }
             }
         }
@@ -157,8 +157,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     
     if(tid == 0){
         printf("\nMin %d Max %d\n", min_data[0],max_data[0]);
-        max_min[0] = min_data[0];
-        max_min[1] = max_data[0]; 
+        max_min[0] = max_min_data[blockDim.x];
+        max_min[1] = max_min_data[0]; 
     }
 
 }
