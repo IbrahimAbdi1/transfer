@@ -51,8 +51,9 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   // reduction memes until finnito
   find_min_max<<<1,pixelCount,2*size>>>(deviceMatrix_OUT,d_min_max);
   
-   normalize1<<<pixelCount/1024 + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max); // dont know 
+   normalize1<<<pixelCount/1024 + 1,pixelCount>>>(deviceMatrix_OUT,width,height,d_min_max); // dont know 
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
+   printf("Device Variable Copying:\t%s\n", cudaGetErrorString(cudaGetLastError()));
    cudaFree(deviceMatrix_IN);
    cudaFree(deviceMatrix_OUT);
    cudaFree(deviceFilter);
