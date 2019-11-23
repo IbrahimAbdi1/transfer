@@ -152,7 +152,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     }
     
     if(tid == 0){
-        printf("Min %d Max %d\n"), min_data[0],max_data[0]);
+        printf("Min %d Max %d\n", min_data[0],max_data[0]);
         max_min[0] = min_data[0];
         max_min[1] = max_data[1]; 
     }
