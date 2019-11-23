@@ -36,7 +36,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   
   cudaMemcpy(deviceMatrix_IN,input,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
-  cudaMemcpy(deviceFilter,lp3_m,9*sizeof(int8_t),cudaMemcpyHostToDevice);
+  cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
 
   kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
 
