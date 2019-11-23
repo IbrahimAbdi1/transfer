@@ -40,8 +40,8 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
 
   kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
 
-  cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
-  printf("hehe %d\n",output[0]);
+  // cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
+   printf("hehe %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
   // reduction memes until finnito
   //find_min_max<<<1,pixelCount>>>(output,d_min_max);
