@@ -107,7 +107,7 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
 __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    
+    printf("min max from id %d\n",tid);
     //load to share data 2 share datas one for min and max 
     extern __shared__ int32_t max_data[];
     extern __shared__ int32_t min_data[];
