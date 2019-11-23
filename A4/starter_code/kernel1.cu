@@ -128,7 +128,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
         }
     }
     __syncthreads();
-    
+    printf("\nid %d made it through the first stride\n", tid);
     for(int stride = first_stride/2;stride > 0; stride>>= 1){
         if(tid < stride){
             
