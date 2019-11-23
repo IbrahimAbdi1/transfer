@@ -28,7 +28,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   int32_t *d_min_max;
   int32_t *deviceMatrix_IN,*deviceMatrix_OUT;
   int8_t *deviceFilter;
-  int size = height*width*sizeof(int32_t) + 1;
+  int size = height*width*sizeof(int32_t);
 
   cudaMalloc((void**)&deviceMatrix_IN,size);
   cudaMalloc((void**)&deviceMatrix_OUT,size);
@@ -40,14 +40,15 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMemcpy(deviceMatrix_IN,input,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
+  cudaDeviceSynchronize();
   printf("hehe %d %d %d %d\n",input[0],input[1],input[2],input[3]);
   kernel1<<<pixelCount/1024 + 1,pixelCount>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
   cudaDeviceSynchronize();
-   cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
-   printf("hehe2 %d %d %d %d\n",output[0],output[1],output[2],output[3]);
+   //cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
+   //printf("hehe2 %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
   // reduction memes until finnito
-  //find_min_max<<<1,pixelCount>>>(output,d_min_max);
+  find_min_max<<<1,pixelCount>>>(output,d_min_max);
   
   //normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max); // dont know 
    
@@ -84,7 +85,7 @@ int32_t *output, int32_t width,int32_t height) {
     }
     //printf("id %d has sum %d\n",idx,sum);
     output[idx] = sum;
-    printf("output at %d has sum %d\n",idx,output[idx]);
+    //printf("output at %d has sum %d\n",idx,output[idx]);
     
   }
 
@@ -151,7 +152,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     }
     
     if(tid == 0){
-        //printf("Min %d Max %d\n"), min_data[0],max_data[0]);
+        printf("Min %d Max %d\n"), min_data[0],max_data[0]);
         max_min[0] = min_data[0];
         max_min[1] = max_data[1]; 
     }
