@@ -60,7 +60,7 @@ int32_t *output, int32_t width,int32_t height) {
  
   // get index given tid
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  printf("hi\n");
+  
   // call apply2d on input @ index and store it  on output @ index
   if(idx < height*width){
     int row = idx/width;
@@ -82,8 +82,9 @@ int32_t *output, int32_t width,int32_t height) {
             }
         }
     }
+    printf("id %d has sum %d\n",idx,sum);
     output[idx] = sum;
-
+    __syncthreads();
   }
 
 
