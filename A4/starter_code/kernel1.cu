@@ -118,7 +118,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
 
     max_data[tid] = arr[tid];
     __syncthreads();
-    printf("hit here 2 \n");
+    
     // need first stride for filling in min
     int first_stride = blockDim.x/2;
     if(tid < first_stride){
@@ -133,8 +133,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
         }
     }
     __syncthreads();
-    printf("hit here 3 \n");
-    printf("\nid %d made it through the first stride\n", tid);
+    printf("\n first stride Min %d Max %d\n", min_data[0],max_data[0]);
     for(int stride = first_stride/2;stride > 0; stride>>= 1){
         if(tid < stride){
             
@@ -159,7 +158,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     if(tid == 0){
         printf("\nMin %d Max %d\n", min_data[0],max_data[0]);
         max_min[0] = min_data[0];
-        max_min[1] = max_data[1]; 
+        max_min[1] = max_data[0]; 
     }
 
 }
