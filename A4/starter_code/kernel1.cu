@@ -51,7 +51,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   // reduction memes until finnito
   find_min_max<<<1,pixelCount,2*size>>>(deviceMatrix_OUT,d_min_max);
   cudaGetLastError();
-  //normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max); // dont know 
+   normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max); // dont know 
    cudaFree(deviceMatrix_IN);
    cudaFree(deviceMatrix_OUT);
    cudaFree(deviceFilter);
@@ -103,6 +103,7 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
     image[idx] = ((image[idx] - smallest_biggest[0]) * 255) / (smallest_biggest[1] - smallest_biggest[0]);
+    printf("normalized %d\n",image[idx]);
   }
 }
 
@@ -150,7 +151,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
                 }
             }
             else if(max_min_data[blockDim.x+tid] > max_min_data[blockDim.x+tid + stride]){
-                max_min_data[blockDim.x+tid] = max_min_data[blockDim.x+tid + stride]
+                max_min_data[blockDim.x+tid] = max_min_data[blockDim.x+tid + stride];
             }
         }
 
