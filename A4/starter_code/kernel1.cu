@@ -49,7 +49,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
    //printf("hehe2 %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
   // reduction memes until finnito
-  find_min_max<<<1,pixelCount,size>>>(deviceMatrix_OUT,d_min_max);
+  find_min_max<<<1,pixelCount,2*size>>>(deviceMatrix_OUT,d_min_max);
   cudaGetLastError();
   //normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max); // dont know 
    cudaFree(deviceMatrix_IN);
@@ -113,8 +113,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     
     //load to share data 2 share datas one for min and max 
-    extern __shared__ int32_t max_data[];
-    extern __shared__ int32_t min_data[];
+    extern __shared__ int32_t max_data[blockDim.x];
+    extern __shared__ int32_t min_data[blockDim.x];
 
     max_data[tid] = arr[tid];
     __syncthreads();
