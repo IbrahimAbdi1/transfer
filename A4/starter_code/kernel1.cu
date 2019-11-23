@@ -43,15 +43,16 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   
   printf("hehe %d %d %d %d\n",input[0],input[1],input[2],input[3]);
   kernel1<<<pixelCount/1024 + 1,pixelCount>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
-  cudaGetLastError();
   
-   //cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
+  
+   
    //printf("hehe2 %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
   // reduction memes until finnito
   find_min_max<<<1,pixelCount,2*size>>>(deviceMatrix_OUT,d_min_max);
-  cudaGetLastError();
+  
    normalize1<<<pixelCount/1024 + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max); // dont know 
+   cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
    cudaFree(deviceMatrix_IN);
    cudaFree(deviceMatrix_OUT);
    cudaFree(deviceFilter);
