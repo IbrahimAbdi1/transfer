@@ -30,10 +30,10 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   int8_t *deviceFilter;
   int size = pixelCount*sizeof(int32_t);
 
-  cudaMalloc(&deviceMatrix_IN,size);
-  cudaMalloc(&deviceMatrix_OUT,size);
-  cudaMalloc(&deviceFilter,dimension*dimension*sizeof(int8_t));
-  cudaMalloc(&d_min_max,2*sizeof(int));
+  cudaMalloc((void**)&deviceMatrix_IN,size);
+  cudaMalloc((void**)&deviceMatrix_OUT,size);
+  cudaMalloc((void**)&deviceFilter,dimension*dimension*sizeof(int8_t));
+  cudaMalloc((void**)&d_min_max,2*sizeof(int));
 
 
   
@@ -42,7 +42,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
   printf("hehe %d %d %d %d\n",input[0],input[1],input[2],input[3]);
   kernel1<<<pixelCount/1024 + 1,pixelCount>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
-
+  cudaDeviceSynchronize();
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
    printf("hehe %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
