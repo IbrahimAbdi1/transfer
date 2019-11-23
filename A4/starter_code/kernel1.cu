@@ -40,7 +40,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
 
   kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
 
-  // cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
+   cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
    printf("hehe %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
   // reduction memes until finnito
@@ -54,9 +54,10 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
 
 __global__ void kernel1(const int8_t *filter, int32_t dimension, const int32_t *input, 
 int32_t *output, int32_t width,int32_t height) {
-
+ 
   // get index given tid
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  printf("hi\n");
   // call apply2d on input @ index and store it  on output @ index
   if(idx < height*width){
     int row = idx/width;
