@@ -151,7 +151,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
                 }
             }
             if(max_min_data[blockDim.x+tid] > max_min_data[blockDim.x+tid + stride]){
-                printf
+               
                 max_min_data[blockDim.x+tid] = max_min_data[blockDim.x+tid + stride];
             }
         }
