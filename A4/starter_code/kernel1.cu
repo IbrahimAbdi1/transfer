@@ -133,8 +133,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
         }
     }
     __syncthreads();
-    
-    for(int stride = first_stride/2;stride > 0; stride>>= 1){
+    printf("\n first stride Min %d Max %d\n", max_min_data[blockDim.x],max_min_data[0]);
+    for(int stride = first_stride/2;stride > 1; stride>>= 1){
         if(tid < stride){
             
             if(max_min_data[tid] < max_min_data[tid + stride]){
