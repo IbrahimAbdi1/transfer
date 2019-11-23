@@ -82,8 +82,9 @@ int32_t *output, int32_t width,int32_t height) {
             }
         }
     }
-    printf("id %d has sum %d\n",idx,sum);
+    //printf("id %d has sum %d\n",idx,sum);
     output[idx] = sum;
+    printf("output at %d has sum %d\n",output[idx],sum);
     __syncthreads();
   }
 
