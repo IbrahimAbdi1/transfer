@@ -28,7 +28,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   int32_t *d_min_max;
   int32_t *deviceMatrix_IN,*deviceMatrix_OUT;
   int8_t *deviceFilter;
-  int size = pixelCount*sizeof(int32_t);
+  int size = height*width*sizeof(int32_t) + 1;
 
   cudaMalloc((void**)&deviceMatrix_IN,size);
   cudaMalloc((void**)&deviceMatrix_OUT,size);
