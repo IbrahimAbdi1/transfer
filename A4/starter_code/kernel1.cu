@@ -115,10 +115,10 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     
-    //load to share data 2 share datas one for min and max 
+    //one big array first half for fiding max secound for finding min
     extern __shared__ int32_t max_min_data[];
     
-
+    // load only max no need for both
     max_min_data[tid] = arr[tid];
     __syncthreads();
     
@@ -136,23 +136,16 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
         }
     }
     __syncthreads();
-    printf("first tid 0 stride Min %d Max %d\n", max_min_data[blockDim.x],max_min_data[0]);
-    printf("first tid 1 stride Min %d Max %d\n", max_min_data[blockDim.x+1],max_min_data[1]);
+   
+
     for(int stride = first_stride/2;stride > 0; stride>>= 1){
         if(tid < stride){
-            
+            // cheack if the max is bigger 
             if(max_min_data[tid] < max_min_data[tid + stride]){
-                int32_t temp = max_min_data[tid];
                 max_min_data[tid] = max_min_data[tid + stride];
-                if(max_min_data[blockDim.x+tid] > temp){
-                    max_min_data[blockDim.x+tid] = temp;
-                }
+                
             }
-            if(max_min_data[tid] >= max_min_data[tid + stride]){
-                if(max_min_data[blockDim.x+tid] > max_min_data[tid + stride]){
-                    max_min_data[blockDim.x+tid] = max_min_data[tid + stride];
-                }
-            }
+            // check if min is bigger
             if(max_min_data[blockDim.x+tid] > max_min_data[blockDim.x+tid + stride]){
                
                 max_min_data[blockDim.x+tid] = max_min_data[blockDim.x+tid + stride];
