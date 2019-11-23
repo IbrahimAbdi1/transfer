@@ -134,7 +134,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
         }
     }
     __syncthreads();
-    printf("\n first stride Min %d Max %d\n", max_min_data[blockDim.x + 1],max_min_data[0+1]);
+    printf("first tid 0 stride Min %d Max %d\n", max_min_data[blockDim.x],max_min_data[0]);
+    printf("first tid 1 stride Min %d Max %d\n", max_min_data[blockDim.x+1],max_min_data[1]);
     for(int stride = first_stride/2;stride > 1; stride>>= 1){
         if(tid < stride){
             
