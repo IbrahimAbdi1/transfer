@@ -18,13 +18,14 @@
 #include <unistd.h>
 
 
-int32_t *d_min_max;
+
 
 
 void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
   int pixelCount = width*height;
+  int32_t *d_min_max;
   int32_t *deviceMatrix_IN,*deviceMatrix_OUT;
   int8_t *deviceFilter;
   int size = pixelCount*sizeof(int32_t);
@@ -32,21 +33,23 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMalloc(&deviceMatrix_IN,size);
   cudaMalloc(&deviceMatrix_OUT,size);
   cudaMalloc(&deviceFilter,dimension*dimension*sizeof(int8_t));
+  cudaMalloc(&d_min_max,2*sizeof(int));
+
 
   
   cudaMemcpy(deviceMatrix_IN,input,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
 
-  kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
+  kernel1<<<pixelCount/1024 + 1,pixelCount>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
 
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyHostToDevice);
    printf("hehe %d %d %d %d\n",output[0],output[1],output[2],output[3]);
   
   // reduction memes until finnito
-  //find_min_max<<<1,pixelCount>>>(output,d_min_max);
+  find_min_max<<<1,pixelCount>>>(output,d_min_max);
   
-  //normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max); // dont know 
+  normalize1<<<pixelCount/1024 + 1,1024>>>(output,width,height,d_min_max); // dont know 
    
 }
 
