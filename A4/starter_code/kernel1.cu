@@ -29,6 +29,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   printf("hehe %d\n",output[2]);
   int pixelCount = width*height;
   kernel1<<<pixelCount/1024 + 1,1024>>>(filter,dimension,input,output,width,height);
+  printf("hehe %d\n",output[2]);
   
   // reduction memes until finnito
   //find_min_max<<<1,pixelCount>>>(output,d_min_max);
