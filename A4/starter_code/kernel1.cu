@@ -122,7 +122,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     // need first stride for filling in min
     int first_stride = blockDim.x/2;
     if(tid < first_stride){
-        printf("first stride %d vs %d\n",max_data[tid],max_data[tid + first_stride]);
+        
         if(max_min_data[tid] < max_min_data[tid + first_stride]){
             int32_t temp = max_min_data[tid];
             max_min_data[tid] = max_min_data[tid + first_stride];
@@ -140,7 +140,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
             if(max_min_data[tid] < max_min_data[tid + stride]){
                 int32_t temp = max_min_data[tid];
                 max_min_data[tid] = max_min_data[tid + stride];
-                if(min_data[tid] > temp){
+                if(max_min_data[blockDim.x+tid] > temp){
                     max_min_data[blockDim.x+tid] = temp;
                 }
             }
@@ -156,7 +156,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
     }
     
     if(tid == 0){
-        printf("\nMin %d Max %d\n", min_data[0],max_data[0]);
+        printf("\nMin %d Max %d\n", max_min_data[blockDim.x],max_min_data[0]);
         max_min[0] = max_min_data[blockDim.x];
         max_min[1] = max_min_data[0]; 
     }
