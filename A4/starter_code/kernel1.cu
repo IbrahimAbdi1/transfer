@@ -145,7 +145,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
                     max_min_data[blockDim.x+tid] = temp;
                 }
             }
-            else if(max_min_data[tid] >= max_min_data[tid + stride]){
+            if(max_min_data[tid] >= max_min_data[tid + stride]){
                 if(max_min_data[blockDim.x+tid] > max_min_data[tid + stride]){
                     max_min_data[blockDim.x+tid] = max_min_data[tid + stride];
                 }
