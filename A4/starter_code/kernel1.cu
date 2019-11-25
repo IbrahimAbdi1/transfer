@@ -26,14 +26,18 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   // Figure out how to split the work into threads and call the kernel below.
   int pixelCount = width*height;
   int32_t *d_min_max;
+  int32_t *g_min_max;
   int32_t *deviceMatrix_IN,*deviceMatrix_OUT;
   int8_t *deviceFilter;
   int size = height*width*sizeof(int32_t);
+  int numBlocks = pixelCount/1024;
+  
 
   cudaMalloc((void**)&deviceMatrix_IN,size);
   cudaMalloc((void**)&deviceMatrix_OUT,size);
   cudaMalloc((void**)&deviceFilter,dimension*dimension*sizeof(int8_t));
-  cudaMalloc((void**)&d_min_max,2*sizeof(int));
+  cudaMalloc((void**)&d_min_max,2*sizeof(int32_t));
+  cudaMalloc((void**)&g_min_max,(numBlocks + 1)*sizeof(int32_t));
 
 
   
@@ -41,17 +45,22 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
   
-  printf("hehe %d %d %d %d\n",input[0],input[1],input[2],input[3]);
-  kernel1<<<pixelCount/1024 + 1,pixelCount>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
-  
-  
-   
-   //printf("hehe2 %d %d %d %d\n",output[0],output[1],output[2],output[3]);
-  
-  // reduction memes until finnito
-  find_min_max<<<1,pixelCount,2*size>>>(deviceMatrix_OUT,d_min_max);
-  
-   normalize1<<<pixelCount/1024 + 1,pixelCount>>>(deviceMatrix_OUT,width,height,d_min_max); // dont know 
+  if(pixelCount < 1024){
+      kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
+      find_min_max<<<1,pixelCount,2*1024*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
+      normalize1<<<pixelCount/1024 + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max);
+  }
+  else{
+      kernel1<<<numBlocks + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
+      find_min_max<<<numBlocks + 1,1024,2*1024*sizeof(int32_t)>>>(deviceMatrix_OUT,g_min_max,pixelCount);
+      while(numBlocks > 0){
+          find_min_max<<<numBlocks + 1,1024,2*1024*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
+          numBlocks = numBlocks / 1024;
+      }
+
+  }
+
+
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyDeviceToHost);
    
    cudaFree(deviceMatrix_IN);
@@ -89,7 +98,7 @@ int32_t *output, int32_t width,int32_t height) {
             }
         }
     }
-    //printf("id %d has sum %d\n",idx,sum);
+    
     output[idx] = sum;
     printf("output at %d has sum %d\n",idx,output[idx]);
     
@@ -101,7 +110,7 @@ int32_t *output, int32_t width,int32_t height) {
 
 __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t *smallest_biggest) {
 
-  // reduction needs to happen maybe 
+   
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
     image[idx] = ((image[idx] - smallest_biggest[0]) * 255) / (smallest_biggest[1] - smallest_biggest[0]);
@@ -111,18 +120,21 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
 
 
 // problem ony works with one block
-__global__ void find_min_max(int32_t *arr,int32_t *max_min){
+__global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    
+
+
     //one big array first half for fiding max secound for finding min
     extern __shared__ int32_t max_min_data[];
     
-    // load only max no need for both
-    max_min_data[tid] = arr[tid];
+    // load only max no need for both less time i think
+    if(tid < pixelCount){
+        max_min_data[tid] = arr[tid];
+    }
     __syncthreads();
     
-    // need first stride for filling in min
+    // need seperate first stride for filling in min
     int first_stride = blockDim.x/2;
     if(tid < first_stride){
         
@@ -140,12 +152,12 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min){
 
     for(int stride = first_stride/2;stride > 0; stride>>= 1){
         if(tid < stride){
-            // cheack if the max is bigger 
+            // cheack max
             if(max_min_data[tid] < max_min_data[tid + stride]){
                 max_min_data[tid] = max_min_data[tid + stride];
                 
             }
-            // check if min is bigger
+            // check min 
             if(max_min_data[blockDim.x+tid] > max_min_data[blockDim.x+tid + stride]){
                
                 max_min_data[blockDim.x+tid] = max_min_data[blockDim.x+tid + stride];
