@@ -181,65 +181,19 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
 
         // we dont need to sync threads after this point (usless)
         if(threadID < 32){
-            if(max_min_data[0][threadID] < max_min_data[0][threadID+32]){
-                max_min_data[0][threadID] = max_min_data[0][threadID+32];
-            }
-            if(max_min_data[1][threadID] > max_min_data[1][threadID+32]){
-                max_min_data[1][threadID] = max_min_data[1][threadID+32];
-            }
-
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+32]){max_min_data[0][threadID] = max_min_data[0][threadID+32];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+32]){max_min_data[1][threadID] = max_min_data[1][threadID+32];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+16]){max_min_data[0][threadID] = max_min_data[0][threadID+16];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+16]){max_min_data[1][threadID] = max_min_data[1][threadID+16];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+8]){max_min_data[0][threadID] = max_min_data[0][threadID+8];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+8]){max_min_data[1][threadID] = max_min_data[1][threadID+8];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+4]){max_min_data[0][threadID] = max_min_data[0][threadID+4];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+4]){max_min_data[1][threadID] = max_min_data[1][threadID+4];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+2]){max_min_data[0][threadID] = max_min_data[0][threadID+2];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+2]){max_min_data[1][threadID] = max_min_data[1][threadID+2];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+1]){max_min_data[0][threadID] = max_min_data[0][threadID+1];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+1]){max_min_data[1][threadID] = max_min_data[1][threadID+1];}
         }
-        __syncthreads();
-        if(threadID < 16){
-            if(max_min_data[0][threadID] < max_min_data[0][threadID+16]){
-                max_min_data[0][threadID] = max_min_data[0][threadID+16];
-            }
-            if(max_min_data[1][threadID] > max_min_data[1][threadID+16]){
-                max_min_data[1][threadID] = max_min_data[1][threadID+16];
-            }
-
-        }
-        __syncthreads();
-        if(threadID < 8){
-            if(max_min_data[0][threadID] < max_min_data[0][threadID+8]){
-                max_min_data[0][threadID] = max_min_data[0][threadID+8];
-            }
-            if(max_min_data[1][threadID] > max_min_data[1][threadID+8]){
-                max_min_data[1][threadID] = max_min_data[1][threadID+8];
-            }
-
-        }
-        __syncthreads();
-        if(threadID < 4){
-            if(max_min_data[0][threadID] < max_min_data[0][threadID+4]){
-                max_min_data[0][threadID] = max_min_data[0][threadID+4];
-            }
-            if(max_min_data[1][threadID] > max_min_data[1][threadID+4]){
-                max_min_data[1][threadID] = max_min_data[1][threadID+4];
-            }
-
-        }
-        __syncthreads();
-        if(threadID < 2){
-            if(max_min_data[0][threadID] < max_min_data[0][threadID+2]){
-                max_min_data[0][threadID] = max_min_data[0][threadID+2];
-            }
-            if(max_min_data[1][threadID] > max_min_data[1][threadID+2]){
-                max_min_data[1][threadID] = max_min_data[1][threadID+2];
-            }
-
-        }
-        __syncthreads();
-        if(threadID < 1){
-            if(max_min_data[0][threadID] < max_min_data[0][threadID+1]){
-                max_min_data[0][threadID] = max_min_data[0][threadID+1];
-            }
-            if(max_min_data[1][threadID] > max_min_data[1][threadID+1]){
-                max_min_data[1][threadID] = max_min_data[1][threadID+1];
-            }
-
-        }
-        __syncthreads();
 
         if(tid == 0){
             printf("max %d min %d\n", (int)max_min_data[0][0],(int)max_min_data[1][0]);
