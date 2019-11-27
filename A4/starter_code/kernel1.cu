@@ -44,23 +44,12 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMemcpy(deviceMatrix_IN,input,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
-  kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
-  if(pixelCount < 1024){
-      kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
-      find_min_max<<<1,pixelCount,2*1024*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
-      normalize1<<<pixelCount/1024 + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max);
-  }
-  else{
-      kernel1<<<numBlocks + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
-      find_min_max<<<numBlocks + 1,1024,2*1024*sizeof(int32_t)>>>(deviceMatrix_OUT,g_min_max,pixelCount);
-      while(numBlocks > 0){
-          find_min_max<<<numBlocks + 1,1024,2*1024*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
-          numBlocks = numBlocks / 1024;
-      }
+  kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
-  }
+  find_min_max<<<numBlocks+1,1024,2048*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
 
+  normalize1<<<pixelCount/1024 + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max);
 
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyDeviceToHost);
    
@@ -68,6 +57,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
    cudaFree(deviceMatrix_OUT);
    cudaFree(deviceFilter);
    cudaFree(d_min_max);
+   cudaFree(g_min_max);
 }
 
 
@@ -103,10 +93,6 @@ int32_t *output, int32_t width,int32_t height) {
     }
     
     output[idx] = sum;
-    // store it in shared 
-    // sync 
-
-    // 
     
   }
 
@@ -130,60 +116,133 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
 __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    int blockSize = blockDim.x;
     int threadID = threadIdx.x;
 
-    //one big array first half for fiding max secound for finding min
-    extern __shared__ int32_t max_min_data[blockDim.x];
-    
-    // load only max no need for both less time i think
+    extern __shared__ int32_t max_min_data[2][1024];
+
+    // either load data or pad
+    // max is 0 min is 1
     if(tid < pixelCount){
-        max_min_data[tid] = arr[tid];
+        int32_t g_pixel = arr[tid];
+        max_min_data[0][threadID] = g_pixel;
+        max_min_data[1][threadID] = g_pixel;
+    }
+    else{
+        max_min_data[threadID] = 0;
     }
     __syncthreads();
-    
-    // need seperate first stride for filling in min
-     // fix this
-     
-    int first_stride = blockDim.x/2;
-     
 
-    if( < first_stride){
-        
-        if(max_min_data[threadID] < max_min_data[threadID + first_stride]){
-            int32_t temp = max_min_data[threadID];
-            max_min_data[threadID] = max_min_data[threadID + first_stride];
-            max_min_data[blockDim.x+threadID] = temp;
-        }
-        else{
-            max_min_data[blockDim.x+threadID] = max_min_data[threadID + first_stride];
-        }
-    }
-    __syncthreads();
-   
+    // complete unroll 
 
-    for(int stride = first_stride/2;stride > 0; stride>>= 1){
-        if(threadID < stride){
-            // cheack max
-            if(max_min_data[threadID] < max_min_data[threadID + stride]){
-                max_min_data[threadID] = max_min_data[threadID + stride];
-                
+    if(blockSize >= 1024){
+        if(threadID < 512){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+512]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+512];
             }
-            // check min 
-            if(max_min_data[blockDim.x+threadID] > max_min_data[blockDim.x+threadID + stride]){
-               
-                max_min_data[blockDim.x+threadID] = max_min_data[blockDim.x+threadID + stride];
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+512]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+512];
             }
+
         }
+        __syncthreads();
+        if(threadID < 256){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+256]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+256];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+256]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+256];
+            }
 
-       __syncthreads();
+        }
+        __syncthreads();
+        if(threadID < 128){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+128]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+128];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+128]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+128];
+            }
 
-    }
-    
-    
-    if(threadID == 0){
-        printf("\nMin %d Max %d\n", max_min_data[blockDim.x],max_min_data[0]);
-        max_min[0] = max_min_data[blockDim.x];
-        max_min[1] = max_min_data[0]; 
+        }
+        __syncthreads();
+        if(threadID < 64){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+64]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+64];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+64]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+64];
+            }
+
+        }
+        __syncthreads();
+
+        // we dont need to sync threads after this point (usless)
+        if(threadID < 32){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+32]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+32];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+32]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+32];
+            }
+
+        }
+        __syncthreads();
+        if(threadID < 16){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+16]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+16];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+16]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+16];
+            }
+
+        }
+        __syncthreads();
+        if(threadID < 8){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+8]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+8];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+8]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+8];
+            }
+
+        }
+        __syncthreads();
+        if(threadID < 4){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+4]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+4];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+4]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+4];
+            }
+
+        }
+        __syncthreads();
+        if(threadID < 2){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+2]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+2];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+2]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+2];
+            }
+
+        }
+        __syncthreads();
+        if(threadID < 1){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+1]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+1];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+1]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+1];
+            }
+
+        }
+        __syncthreads();
+
+        if(tid == 0){
+            max_min[1] = max_min_data[0][0];
+            max_min[0] = max_min_data[1][0];
+        }
     }
 
 }
