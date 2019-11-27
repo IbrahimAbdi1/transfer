@@ -81,7 +81,7 @@ int32_t *output, int32_t width,int32_t height) {
     
     int s_row = row - filter_centre;
     int s_column = column - filter_centre;
-    for(int r = 0;r<dimension;r++){`
+    for(int r = 0;r<dimension;r++){
         int n_row = s_row + r;
         for(int c = 0;c<dimension;c++){
             int n_column = s_column + c;
@@ -117,7 +117,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blockSize = blockDim.x;
-    int threadID = threadIdx.x;
+    const int threadID = threadIdx.x;
 
     extern __shared__ int32_t max_min_data[2][1024];
 
