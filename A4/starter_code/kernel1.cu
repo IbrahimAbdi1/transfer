@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string>
 #include <unistd.h>
+#include <math.h>
 
 
 
@@ -47,7 +48,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
 
   kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
-  find_min_max<<<numBlocks+1,1024,2048*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
+  find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
 
   normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max);
 
@@ -119,7 +120,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     int blockSize = blockDim.x;
     int threadID = threadIdx.x;
 
-    extern __shared__ int32_t max_min_data[2][1024];
+    extern __shared__ double max_min_data[2][1024];
 
     // either load data or pad
     // max is 0 min is 1
@@ -129,8 +130,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
         max_min_data[1][threadID] = g_pixel;
     }
     else{
-        max_min_data[0][threadID] = 0;
-        max_min_data[1][threadID] = 0;
+        max_min_data[0][threadID] = -INFINITY;
+        max_min_data[1][threadID] = INFINITY;
     }
     __syncthreads();
 
