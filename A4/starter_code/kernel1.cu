@@ -126,8 +126,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     // max is 0 min is 1
     if(tid < pixelCount){
         int32_t g_pixel = arr[tid];
-        max_min_data[0][threadID] = g_pixel;
-        max_min_data[1][threadID] = g_pixel;
+        max_min_data[0][threadID] = (double)g_pixel;
+        max_min_data[1][threadID] = (double)g_pixel;
     }
     else{
         max_min_data[0][threadID] = -INFINITY;
@@ -242,7 +242,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
         __syncthreads();
 
         if(tid == 0){
-            printf("max %d min %d\n", max_min_data[0][0],max_min_data[1][0]);
+            printf("max %d min %d\n", (int)max_min_data[0][0],(int)max_min_data[1][0]);
             max_min[1] = max_min_data[0][0];
             max_min[0] = max_min_data[1][0];
         }
