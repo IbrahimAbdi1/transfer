@@ -44,7 +44,8 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMemcpy(deviceMatrix_IN,input,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
-  
+  kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
+
   if(pixelCount < 1024){
       kernel1<<<pixelCount/1024 + 1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height);
       find_min_max<<<1,pixelCount,2*1024*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
@@ -73,6 +74,8 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
 
 __global__ void kernel1(const int8_t *filter, int32_t dimension, const int32_t *input, 
 int32_t *output, int32_t width,int32_t height) {
+
+  // shared memory   
  
   // get index given tid
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -88,7 +91,7 @@ int32_t *output, int32_t width,int32_t height) {
     
     int s_row = row - filter_centre;
     int s_column = column - filter_centre;
-    for(int r = 0;r<dimension;r++){
+    for(int r = 0;r<dimension;r++){`
         int n_row = s_row + r;
         for(int c = 0;c<dimension;c++){
             int n_column = s_column + c;
@@ -100,7 +103,10 @@ int32_t *output, int32_t width,int32_t height) {
     }
     
     output[idx] = sum;
-    printf("output at %d has sum %d\n",idx,output[idx]);
+    // store it in shared 
+    // sync 
+
+    // 
     
   }
 
@@ -119,14 +125,15 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
 }
 
 
-// problem ony works with one block
+// need to account for pixels < 1024 
+// tid switch to threadId 
 __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
+    int threadID = threadIdx.x;
 
     //one big array first half for fiding max secound for finding min
-    extern __shared__ int32_t max_min_data[];
+    extern __shared__ int32_t max_min_data[blockDim.x];
     
     // load only max no need for both less time i think
     if(tid < pixelCount){
@@ -135,32 +142,36 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     __syncthreads();
     
     // need seperate first stride for filling in min
+     // fix this
+     
     int first_stride = blockDim.x/2;
-    if(tid < first_stride){
+     
+
+    if( < first_stride){
         
-        if(max_min_data[tid] < max_min_data[tid + first_stride]){
-            int32_t temp = max_min_data[tid];
-            max_min_data[tid] = max_min_data[tid + first_stride];
-            max_min_data[blockDim.x+tid] = temp;
+        if(max_min_data[threadID] < max_min_data[threadID + first_stride]){
+            int32_t temp = max_min_data[threadID];
+            max_min_data[threadID] = max_min_data[threadID + first_stride];
+            max_min_data[blockDim.x+threadID] = temp;
         }
         else{
-            max_min_data[blockDim.x+tid] = max_min_data[tid + first_stride];
+            max_min_data[blockDim.x+threadID] = max_min_data[threadID + first_stride];
         }
     }
     __syncthreads();
    
 
     for(int stride = first_stride/2;stride > 0; stride>>= 1){
-        if(tid < stride){
+        if(threadID < stride){
             // cheack max
-            if(max_min_data[tid] < max_min_data[tid + stride]){
-                max_min_data[tid] = max_min_data[tid + stride];
+            if(max_min_data[threadID] < max_min_data[threadID + stride]){
+                max_min_data[threadID] = max_min_data[threadID + stride];
                 
             }
             // check min 
-            if(max_min_data[blockDim.x+tid] > max_min_data[blockDim.x+tid + stride]){
+            if(max_min_data[blockDim.x+threadID] > max_min_data[blockDim.x+threadID + stride]){
                
-                max_min_data[blockDim.x+tid] = max_min_data[blockDim.x+tid + stride];
+                max_min_data[blockDim.x+threadID] = max_min_data[blockDim.x+threadID + stride];
             }
         }
 
@@ -168,7 +179,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
 
     }
     
-    if(tid == 0){
+    
+    if(threadID == 0){
         printf("\nMin %d Max %d\n", max_min_data[blockDim.x],max_min_data[0]);
         max_min[0] = max_min_data[blockDim.x];
         max_min[1] = max_min_data[0]; 
