@@ -117,7 +117,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blockSize = blockDim.x;
-    const int threadID = threadIdx.x;
+    int threadID = threadIdx.x;
 
     extern __shared__ int32_t max_min_data[2][1024];
 
@@ -129,7 +129,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
         max_min_data[1][threadID] = g_pixel;
     }
     else{
-        max_min_data[threadID] = 0;
+        max_min_data[0][threadID] = 0;
+        max_min_data[1][threadID] = 0;
     }
     __syncthreads();
 
