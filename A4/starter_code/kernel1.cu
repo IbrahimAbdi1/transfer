@@ -242,7 +242,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
         __syncthreads();
 
         if(tid == 0){
-            printf("min %d max %d\n", max_min_data[0][0],max_min_data[1][0]);
+            printf("max %d min %d\n", max_min_data[0][0],max_min_data[1][0]);
             max_min[1] = max_min_data[0][0];
             max_min[0] = max_min_data[1][0];
         }
