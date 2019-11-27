@@ -120,7 +120,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     int blockSize = blockDim.x;
     int threadID = threadIdx.x;
 
-    extern __shared__ double max_min_data[2][1024];
+    __shared__ double max_min_data[2][1024];
 
     // either load data or pad
     // max is 0 min is 1
