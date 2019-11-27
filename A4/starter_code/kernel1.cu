@@ -49,7 +49,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
 
   find_min_max<<<numBlocks+1,1024,2048*sizeof(int32_t)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
 
-  normalize1<<<pixelCount/1024 + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max);
+  normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max);
 
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyDeviceToHost);
    
