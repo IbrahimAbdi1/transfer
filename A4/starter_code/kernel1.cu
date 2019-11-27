@@ -194,7 +194,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
             if(max_min_data[0][threadID] < max_min_data[0][threadID+1]){max_min_data[0][threadID] = max_min_data[0][threadID+1];}
             if(max_min_data[1][threadID] > max_min_data[1][threadID+1]){max_min_data[1][threadID] = max_min_data[1][threadID+1];}
         }
-
+        
+        __syncthreads();
         if(tid == 0){
             printf("max %d min %d\n", (int)max_min_data[0][0],(int)max_min_data[1][0]);
             max_min[1] = max_min_data[0][0];
