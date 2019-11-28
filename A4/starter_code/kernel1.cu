@@ -153,6 +153,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
             if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+128]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+128];}
 
         }
+        //ggg
         __syncthreads();
         if(threadID < 64){
             if(max_min_data[threadID*2] < max_min_data[threadID*2+64]){max_min_data[threadID*2] = max_min_data[threadID*2+64];}
