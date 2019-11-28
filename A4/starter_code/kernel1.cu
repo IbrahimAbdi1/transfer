@@ -137,7 +137,6 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
 
     // complete unroll 
 
-    if(blockSize >= 1024){
         if(threadID < 512){
             if(max_min_data[threadID*2] < max_min_data[threadID*2+512]){max_min_data[threadID*2] = max_min_data[threadID*2+512];}
             if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+512]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+512];}
@@ -197,6 +196,5 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
             max_min[1] = max_min_data[0];
             max_min[0] = max_min_data[1];
         }
-    }
 
 }
