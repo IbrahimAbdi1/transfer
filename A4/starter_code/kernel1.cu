@@ -113,11 +113,11 @@ int32_t *output, int32_t width,int32_t height) {
 }
 
 __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t *smallest_biggest) {
-    printf("max %d min %d\n",smallest_biggest[1],smallest_biggest[0]);
+    
    
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
-    image[idx] = ((image[idx] - smallest_biggest[0]) * 255) / (smallest_biggest[1] - smallest_biggest[0]);
+    image[idx] = ((image[idx] - smallest_biggest[1]) * 255) / (smallest_biggest[0] - smallest_biggest[1]);
   }
 }
 
