@@ -60,7 +60,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
     find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
 
   }
-
+  printf("max %d min %d\n",g_min_max[1],g_min_max[0]);
   normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,g_min_max);
 
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyDeviceToHost);
@@ -225,8 +225,8 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount, i
 
         if(tid == 0){
             printf("max %d min %d\n", (int)max_min_data[0],(int)max_min_data[1]);
-            max_min[threadID*2] = max_min_data[0];
-            max_min[threadID*2+1] = max_min_data[1];
+            max_min[threadID*2] = max_min_data[blockIdx.x*2];
+            max_min[threadID*2+1] = max_min_data[blockIdx.x*2+1];
         }
 
 }
