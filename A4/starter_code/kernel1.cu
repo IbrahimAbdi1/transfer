@@ -48,9 +48,20 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
 
   kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
-  find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(deviceMatrix_OUT,d_min_max,pixelCount);
+  find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(deviceMatrix_OUT,g_min_max,pixelCount,2*pixelCount);
+  if(pixelCount > 1024){
+    pixelCount = numBlocks+1;
+    numBlocks = numBlocks / 1024;
+    while(numBlocks > 0){
+        find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
+        pixelCount = numBlocks+1;
+        numBlocks = numBlocks / 1024;
+    }
+    find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
 
-  normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,d_min_max);
+  }
+
+  normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,g_min_max);
 
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyDeviceToHost);
    
@@ -107,14 +118,13 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
     image[idx] = ((image[idx] - smallest_biggest[0]) * 255) / (smallest_biggest[1] - smallest_biggest[0]);
-    printf("normalized %d\n",image[idx]);
   }
 }
 
 
 // need to account for pixels < 1024 
 // tid switch to threadId 
-__global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
+__global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount, int pixelBlock){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blockSize = blockDim.x;
@@ -136,66 +146,87 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     __syncthreads();
 
     // complete unroll 
-
+    if(pixelBlock >= 2048){
         if(threadID < 512){
+            if(max_min_data[threadID*2] < max_min_data[threadID*2+1024]){max_min_data[threadID*2] = max_min_data[threadID*2+1024];}
+            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+1024]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+1024];}
+        }
+    }
+    __syncthreads();
+    if(pixelBlock >= 1024){
+        if(threadID < 256){
             if(max_min_data[threadID*2] < max_min_data[threadID*2+512]){max_min_data[threadID*2] = max_min_data[threadID*2+512];}
             if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+512]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+512];}
+
         }
-        __syncthreads();
-        if(threadID < 256){
+    }
+    __syncthreads();
+    if(pixelBlock >= 512){
+        if(threadID < 128){
             if(max_min_data[threadID*2] < max_min_data[threadID*2+256]){max_min_data[threadID*2] = max_min_data[threadID*2+256];}
             if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+256]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+256];}
 
         }
-        __syncthreads();
-        if(threadID < 128){
+    }
+    __syncthreads();
+    if(pixelBlock >= 256){
+        if(threadID < 64){
             if(max_min_data[threadID*2] < max_min_data[threadID*2+128]){max_min_data[threadID*2] = max_min_data[threadID*2+128];}
             if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+128]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+128];}
+        }
+    }
+    __syncthreads();
+    if(threadID < 32){
+        if(pixelBlock >= 128){
+            
+                if(max_min_data[threadID*2] < max_min_data[threadID*2+64]){max_min_data[threadID*2] = max_min_data[threadID*2+64];}
+                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+64]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+64];}
 
         }
-        //ggg
-        __syncthreads();
-        if(threadID < 64){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+64]){max_min_data[threadID*2] = max_min_data[threadID*2+64];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+64]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+64];}
-        }
-        __syncthreads();
+        if(pixelBlock >= 64){    
+            
+                if(max_min_data[threadID*2] < max_min_data[threadID*2+32]){max_min_data[threadID*2] = max_min_data[threadID*2+32];}
+                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+32]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+32];}
 
-        // wrap size issues
-        if(threadID < 32){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+32]){max_min_data[threadID*2] = max_min_data[threadID*2+32];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+32]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+32];}
-
+            
         }
+        if(pixelBlock >= 32){
         
-        if(threadID < 16){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+16]){max_min_data[threadID*2] = max_min_data[threadID*2+16];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+16]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+16];}
+                if(max_min_data[threadID*2] < max_min_data[threadID*2+16]){max_min_data[threadID*2] = max_min_data[threadID*2+16];}
+                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+16]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+16];}
 
+            
         }
-        
-        if(threadID < 8){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+8]){max_min_data[threadID*2] = max_min_data[threadID*2+8];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+8]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+8];}
+        if(pixelBlock >= 16){    
+            
+                if(max_min_data[threadID*2] < max_min_data[threadID*2+8]){max_min_data[threadID*2] = max_min_data[threadID*2+8];}
+                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+8]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+8];}
 
+            
         }
-        
-        if(threadID < 4){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+4]){max_min_data[threadID*2] = max_min_data[threadID*2+4];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+4]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+4];}
+        if(pixelBlock >= 8){  
+            
+                if(max_min_data[threadID*2] < max_min_data[threadID*2+4]){max_min_data[threadID*4] = max_min_data[threadID*2+4];}
+                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+4]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+4];}
 
+            
         }
-        
-        if(threadID < 2){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+2]){max_min_data[threadID*2] = max_min_data[threadID*2+2];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+2]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+2];}
 
+        if(pixelBlock >= 4){  
+            
+                if(max_min_data[threadID*2] < max_min_data[threadID*2+2]){max_min_data[threadID*4] = max_min_data[threadID*2+2];}
+                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+2]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+2];}
+
+            
         }
+
+    }
+
 
         if(tid == 0){
             printf("max %d min %d\n", (int)max_min_data[0],(int)max_min_data[1]);
-            max_min[1] = max_min_data[0];
-            max_min[0] = max_min_data[1];
+            max_min[threadID*2] = max_min_data[0];
+            max_min[threadID*2+1] = max_min_data[1];
         }
 
 }
