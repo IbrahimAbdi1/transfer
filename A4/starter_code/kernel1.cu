@@ -60,7 +60,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
     find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
 
   }
-  printf("max %d min %d\n",g_min_max[1],g_min_max[0]);
+  
   normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,g_min_max);
 
    cudaMemcpy(output,deviceMatrix_OUT,size, cudaMemcpyDeviceToHost);
@@ -113,7 +113,7 @@ int32_t *output, int32_t width,int32_t height) {
 }
 
 __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t *smallest_biggest) {
-
+    printf("max %d min %d\n",smallest_biggest[1],smallest_biggest[0]);
    
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
