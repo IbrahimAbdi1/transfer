@@ -47,7 +47,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
 
   kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
-  printf("pixelCount %d numBlocks %d\n",pixelBlock,numBlocks);
+  printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
   find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(deviceMatrix_OUT,g_min_max,pixelCount,2*pixelCount);
   if(pixelCount > 1024){
     pixelCount = numBlocks+1;
@@ -56,7 +56,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
         find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
         pixelCount = numBlocks+1;
         numBlocks = numBlocks / 1024;
-        printf("pixelCount %d numBlocks %d\n",pixelBlock,numBlocks);
+        printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
     }
     find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
 
