@@ -51,6 +51,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(deviceMatrix_OUT,g_min_max,pixelCount,2*pixelCount);
   if(pixelCount > 1024){
     pixelCount = numBlocks+1;
+    printf("pixelCount is %d\n",pixelCount);
     numBlocks = numBlocks / 1024;
     while(numBlocks > 0){
         find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
