@@ -124,7 +124,7 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
 
 // need to account for pixels < 1024 
 // tid switch to threadId 
-__global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
+__global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount, int pixelBlock){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blockSize = blockDim.x;
