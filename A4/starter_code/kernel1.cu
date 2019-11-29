@@ -124,109 +124,114 @@ __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_
 
 // need to account for pixels < 1024 
 // tid switch to threadId 
-__global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount, int pixelBlock){
+__global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount){
     // index 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blockSize = blockDim.x;
     int threadID = threadIdx.x;
 
-    extern __shared__ double max_min_data[];
+    __shared__ double max_min_data[2][1024];
 
     // either load data or pad
     // max is 0 min is 1
     if(tid < pixelCount){
         int32_t g_pixel = arr[tid];
-        max_min_data[threadID*2] = (double)g_pixel; // max is even 
-        max_min_data[threadID*2+1] = (double)g_pixel; // min is odd
+        max_min_data[0][threadID] = (double)g_pixel;
+        max_min_data[1][threadID] = (double)g_pixel;
     }
     else{
-        max_min_data[threadID*2] = -INFINITY;
-        max_min_data[threadID*2 + 1] = INFINITY;
+        max_min_data[0][threadID] = -INFINITY;
+        max_min_data[1][threadID] = INFINITY;
     }
     __syncthreads();
 
     // complete unroll 
-    if(pixelBlock >= 2048){
+
+    if(blockSize >= 1024){
         if(threadID < 512){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+1024]){max_min_data[threadID*2] = max_min_data[threadID*2+1024];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+1024]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+1024];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+512]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+512];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+512]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+512];
+            }
+
         }
-    }
-    __syncthreads();
-    if(pixelBlock >= 1024){
+        __syncthreads();
         if(threadID < 256){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+512]){max_min_data[threadID*2] = max_min_data[threadID*2+512];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+512]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+512];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+256]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+256];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+256]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+256];
+            }
 
         }
-    }
-    __syncthreads();
-    if(pixelBlock >= 512){
+        __syncthreads();
         if(threadID < 128){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+256]){max_min_data[threadID*2] = max_min_data[threadID*2+256];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+256]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+256];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+128]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+128];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+128]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+128];
+            }
 
         }
-    }
-    __syncthreads();
-    if(pixelBlock >= 256){
+        __syncthreads();
         if(threadID < 64){
-            if(max_min_data[threadID*2] < max_min_data[threadID*2+128]){max_min_data[threadID*2] = max_min_data[threadID*2+128];}
-            if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+128]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+128];}
-        }
-    }
-    __syncthreads();
-    if(threadID < 32){
-        if(pixelBlock >= 128){
-            
-                if(max_min_data[threadID*2] < max_min_data[threadID*2+64]){max_min_data[threadID*2] = max_min_data[threadID*2+64];}
-                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+64]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+64];}
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+64]){
+                max_min_data[0][threadID] = max_min_data[0][threadID+64];
+            }
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+64]){
+                max_min_data[1][threadID] = max_min_data[1][threadID+64];
+            }
 
         }
-        if(pixelBlock >= 64){    
-            
-                if(max_min_data[threadID*2] < max_min_data[threadID*2+32]){max_min_data[threadID*2] = max_min_data[threadID*2+32];}
-                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+32]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+32];}
+        __syncthreads();
 
-            
+        // we dont need to sync threads after this point (usless)
+        if(threadID < 32){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+32]){max_min_data[0][threadID] = max_min_data[0][threadID+32];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+32]){max_min_data[1][threadID] = max_min_data[1][threadID+32];}
+
         }
-        if(pixelBlock >= 32){
-        
-                if(max_min_data[threadID*2] < max_min_data[threadID*2+16]){max_min_data[threadID*2] = max_min_data[threadID*2+16];}
-                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+16]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+16];}
+        __syncthreads();
+        if(threadID < 16){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+16]){max_min_data[0][threadID] = max_min_data[0][threadID+16];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+16]){max_min_data[1][threadID] = max_min_data[1][threadID+16];}
 
-            
         }
-        if(pixelBlock >= 16){    
-            
-                if(max_min_data[threadID*2] < max_min_data[threadID*2+8]){max_min_data[threadID*2] = max_min_data[threadID*2+8];}
-                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+8]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+8];}
+        __syncthreads();
+        if(threadID < 8){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+8]){max_min_data[0][threadID] = max_min_data[0][threadID+8];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+8]){max_min_data[1][threadID] = max_min_data[1][threadID+8];}
 
-            
         }
-        if(pixelBlock >= 8){  
-            
-                if(max_min_data[threadID*2] < max_min_data[threadID*2+4]){max_min_data[threadID*4] = max_min_data[threadID*2+4];}
-                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+4]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+4];}
+        __syncthreads();
+        if(threadID < 4){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+4]){max_min_data[0][threadID] = max_min_data[0][threadID+4];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+4]){max_min_data[1][threadID] = max_min_data[1][threadID+4];}
 
-            
         }
+        __syncthreads();
+        if(threadID < 2){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+2]){max_min_data[0][threadID] = max_min_data[0][threadID+2];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+2]){max_min_data[1][threadID] = max_min_data[1][threadID+2];}
 
-        if(pixelBlock >= 4){  
-            
-                if(max_min_data[threadID*2] < max_min_data[threadID*2+2]){max_min_data[threadID*4] = max_min_data[threadID*2+2];}
-                if(max_min_data[threadID*2+1] > max_min_data[threadID*2+1+2]){max_min_data[threadID*2+1] = max_min_data[threadID*2+1+2];}
-
-            
         }
+        __syncthreads();
+        if(threadID < 1){
+            if(max_min_data[0][threadID] < max_min_data[0][threadID+1]){max_min_data[0][threadID] = max_min_data[0][threadID+1];}
+            if(max_min_data[1][threadID] > max_min_data[1][threadID+1]){max_min_data[1][threadID] = max_min_data[1][threadID+1];}
 
-    }
-
+        }
+        __syncthreads();
 
         if(tid == 0){
-            printf("max %d min %d\n", (int)max_min_data[0],(int)max_min_data[1]);
-            max_min[threadID*2] = max_min_data[0];
-            max_min[threadID*2+1] = max_min_data[1];
+            printf("max %d min %d\n", (int)max_min_data[0][1],(int)max_min_data[1][1]);
+            max_min[1] = max_min_data[0][0];
+            max_min[0] = max_min_data[1][0];
         }
+    }
 
 }
