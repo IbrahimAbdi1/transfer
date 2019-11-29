@@ -130,6 +130,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount,in
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blockSize = blockDim.x;
     int threadID = threadIdx.x;
+    printf("blockidx %d\n",blockIdx.x);
 
     __shared__ double max_min_data[2][1024];
 
