@@ -32,7 +32,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   int8_t *deviceFilter;
   int size = height*width*sizeof(int32_t);
   int numBlocks = pixelCount/1024;
-  
+  printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
 
   cudaMalloc((void**)&deviceMatrix_IN,size);
   cudaMalloc((void**)&deviceMatrix_OUT,size);
@@ -51,7 +51,7 @@ void run_kernel1(const int8_t *filter, int32_t dimension, const int32_t *input,
   find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(deviceMatrix_OUT,g_min_max,pixelCount,2*pixelCount);
   if(pixelCount > 1024){
     pixelCount = numBlocks+1;
-    printf("pixelCount %d\n",pixelCount);
+    //printf("pixelCount %d\n",pixelCount);
     numBlocks = numBlocks / 1024;
     while(numBlocks > 0){
         find_min_max<<<numBlocks+1,1024,2048*sizeof(double)>>>(g_min_max,g_min_max,pixelCount,2*pixelCount);
@@ -130,7 +130,6 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount,in
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int blockSize = blockDim.x;
     int threadID = threadIdx.x;
-    printf("blockidx %d\n",blockIdx.x);
 
     __shared__ double max_min_data[2][1024];
 
@@ -230,7 +229,7 @@ __global__ void find_min_max(int32_t *arr,int32_t *max_min,int32_t pixelCount,in
         
 
         if(tid == 0){
-            printf("max %d min %d\n", (int)max_min_data[0][0],(int)max_min_data[1][0]);
+            printf("vlock %d max %d min %d\n", blockIdx.x,(int)max_min_data[0][0],(int)max_min_data[1][0]);
             max_min[blockIdx.x*2] = max_min_data[0][0];
             max_min[blockIdx.x*2+1] = max_min_data[1][0];
         }
