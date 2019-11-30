@@ -48,7 +48,7 @@ __global__ void kernel3(const int8_t *filter, int32_t dimension,
                         const int32_t *input, int32_t *output, int32_t width,
                         int32_t height);
 __global__ void normalize3(int32_t *image, int32_t width, int32_t height,
-                           int32_t smallest, int32_t biggest);
+                           int32_t *smallest_biggest);
 
 void run_kernel4(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height);
