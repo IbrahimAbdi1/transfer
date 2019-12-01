@@ -31,7 +31,8 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
   switch (numThreads)
   {
     case 1024:
-      if (first) {find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      if (first == 1) {
+          find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
       else {find_min_max<1024><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
       break;
     case 512:
