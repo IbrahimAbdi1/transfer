@@ -71,9 +71,7 @@ __global__ void kernel4(const int8_t *filter, int32_t dimension,const int32_t *i
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   if(idx < height*width){
-    start_column = idx;
     int filter_centre = dimension/2;
-
     for(int i=0;i<height;i++){
       int row = width*i;
       int column = idx;
@@ -96,11 +94,11 @@ __global__ void kernel4(const int8_t *filter, int32_t dimension,const int32_t *i
 
 }
 
-__global__ void normalize4(int32_t *image, int32_t width, int32_t height,int32_t smallest, int32_t biggest) {
+__global__ void normalize4(int32_t *image, int32_t width, int32_t height,int32_t *smallest_biggest) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   int start_row = idx*width;
-  int end_row = start_row + width;
+  
 
   for(int i = 0;i<height;i++){
     if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
