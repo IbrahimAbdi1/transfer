@@ -69,8 +69,8 @@ void *sharding_row_work(void *args){
     int num_rows =w->common->height/w->common->max_threads;
     int start_row = w->id * num_rows;
     int end_row = start_row + num_rows;
-    int32_t pix_min = 2147483647;
-    int32_t pix_max = -2147483647;
+    int32_t pix_min = INT32_MAX;
+    int32_t pix_max = INT32_MIN;
     if(w->id == (w->common->max_threads - 1)){
         for(int i=start_row;i<x->height;i++){
             for(int j =0;j<w->common->width;j++){
@@ -89,10 +89,10 @@ void *sharding_row_work(void *args){
 
         pthread_mutex_lock(&(x->lock));
         if(pix_min < x->minp){
-            x->minp = (int32_t)pix_min;
+            x->minp = pix_min;
         }
         if (pix_max > x->maxp){
-            x->maxp = (int32_t)pix_max;
+            x->maxp = pix_max;
         }
         pthread_mutex_unlock(&(x->lock));
 
@@ -154,7 +154,7 @@ void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,
     pthread_mutex_init(&(x->lock), NULL);
     x->max_threads = 8;
     x->width = width; x->height = height;
-    x->minp = 2147483647; x->maxp = -2147483647;
+    x->minp = INT32_MAX ; x->maxp = INT32_MIN;
     pthread_t *t = (pthread_t*)malloc(8 * sizeof(pthread_t));
 
     for(int i = 0; i < 8; i++) {
