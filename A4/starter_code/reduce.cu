@@ -143,43 +143,43 @@ if (blockSize >= 128) {	if(threadID < 64){
       max_min_data[1][threadID] = max_min_data[1][threadID+64];
   }
 
-}}
+}__syncthreads();}
 
-if(threadID < 32){
+if (blockSize >= 64) {	if(threadID < 32){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+32]){max_min_data[0][threadID] = max_min_data[0][threadID+32];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+32]){max_min_data[1][threadID] = max_min_data[1][threadID+32];}
 
-}
+}}
 
-if(threadID < 16){
+if (blockSize >= 32) {	if(threadID < 16){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+16]){max_min_data[0][threadID] = max_min_data[0][threadID+16];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+16]){max_min_data[1][threadID] = max_min_data[1][threadID+16];}
 
-}
+}}
 
-if(threadID < 8){
+if (blockSize >= 16) {	if(threadID < 8){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+8]){max_min_data[0][threadID] = max_min_data[0][threadID+8];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+8]){max_min_data[1][threadID] = max_min_data[1][threadID+8];}
 
-}
+}}
 
-if(threadID < 4){
+if (blockSize >= 8) {	if(threadID < 4){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+4]){max_min_data[0][threadID] = max_min_data[0][threadID+4];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+4]){max_min_data[1][threadID] = max_min_data[1][threadID+4];}
 
-}
+}}
 
-if(threadID < 2){
+if (blockSize >= 4) {	if(threadID < 2){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+2]){max_min_data[0][threadID] = max_min_data[0][threadID+2];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+2]){max_min_data[1][threadID] = max_min_data[1][threadID+2];}
 
-}
+}}
 
-if(threadID < 1){
+if (blockSize >= 2) {	if(threadID < 1){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+1]){max_min_data[0][threadID] = max_min_data[0][threadID+1];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+1]){max_min_data[1][threadID] = max_min_data[1][threadID+1];}
 
-}
+}}
 
 // write result for this block back to global memory
   if (threadID == 0) {
@@ -248,43 +248,43 @@ if (blockSize >= 128) {	if(threadID < 64){
       max_min_data[1][threadID] = max_min_data[1][threadID+64];
   }
 
-}}
+}__syncthreads();}
 
-if(threadID < 32){
+if (blockSize >= 64) {	if(threadID < 32){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+32]){max_min_data[0][threadID] = max_min_data[0][threadID+32];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+32]){max_min_data[1][threadID] = max_min_data[1][threadID+32];}
 
-}
+}}
 
-if(threadID < 16){
+if (blockSize >= 32) {	if(threadID < 16){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+16]){max_min_data[0][threadID] = max_min_data[0][threadID+16];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+16]){max_min_data[1][threadID] = max_min_data[1][threadID+16];}
 
-}
+}}
 
-if(threadID < 8){
+if (blockSize >= 16) {	if(threadID < 8){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+8]){max_min_data[0][threadID] = max_min_data[0][threadID+8];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+8]){max_min_data[1][threadID] = max_min_data[1][threadID+8];}
 
-}
+}}
 
-if(threadID < 4){
+if (blockSize >= 8) {	if(threadID < 4){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+4]){max_min_data[0][threadID] = max_min_data[0][threadID+4];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+4]){max_min_data[1][threadID] = max_min_data[1][threadID+4];}
 
-}
+}}
 
-if(threadID < 2){
+if (blockSize >= 4) {	if(threadID < 2){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+2]){max_min_data[0][threadID] = max_min_data[0][threadID+2];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+2]){max_min_data[1][threadID] = max_min_data[1][threadID+2];}
 
-}
+}}
 
-if(threadID < 1){
+if (blockSize >= 2) {	if(threadID < 1){
   if(max_min_data[0][threadID] < max_min_data[0][threadID+1]){max_min_data[0][threadID] = max_min_data[0][threadID+1];}
   if(max_min_data[1][threadID] > max_min_data[1][threadID+1]){max_min_data[1][threadID] = max_min_data[1][threadID+1];}
 
-}
+}}
 
 // write result for this block back to global memory
   if (threadID == 0) {
