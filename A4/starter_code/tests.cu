@@ -80,8 +80,9 @@ void compare_kernel_against_handwritten_example_1(int kernel) {
   }
 }
 
+
 TEST(csc367a4, kernel1_handwritten_tests) {
-  compare_kernel_against_handwritten_example_1(1);
+  compare_kernel_against_handwritten_example_1(0);
 }
 TEST(csc367a4, kernel2_handwritten_tests) {
   compare_kernel_against_handwritten_example_1(2);
