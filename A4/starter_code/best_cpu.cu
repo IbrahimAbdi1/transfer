@@ -69,8 +69,8 @@ void *sharding_row_work(void *args){
     int num_rows =w->common->height/w->common->max_threads;
     int start_row = w->id * num_rows;
     int end_row = start_row + num_rows;
-    double pix_min = INFINITY;
-    double pix_max = -INFINITY;
+    int32_t pix_min = 2147483647;
+    int32_t pix_max = -2147483647;
     if(w->id == (w->common->max_threads - 1)){
         for(int i=start_row;i<x->height;i++){
             for(int j =0;j<w->common->width;j++){
