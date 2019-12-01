@@ -109,6 +109,7 @@
      
      output[idx] = sum;
      
+     
    }
  
    
@@ -122,6 +123,7 @@
    //int idx = tidx/width + width*(tidx%width);
    if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
      image[idx] = ((image[idx] - smallest_biggest[1]) * 255) / (smallest_biggest[0] - smallest_biggest[1]);
+     printf("kernel 1 %d\n",image[idx]);
    }
  }
  
