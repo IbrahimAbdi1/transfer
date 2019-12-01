@@ -21,65 +21,65 @@
 
  #define MY_MIN(x,y) ((x < y) ? x : y)
 
-// void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, int32_t *indata, int32_t *max, int32_t *min, int first)
-// {
-//   dim3 dimBlock(numThreads,1,1);
-//   dim3 dimGrid (numBlocks, 1,1);
-//   //int shMemSize = 2 * ((numThreads <= 32) ? 2 * numThreads * sizeof(int32_t) : numThreads * sizeof(int32_t));
-//   int shMemSize = 2 * 1024 * sizeof(int32_t);
+void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, int32_t *indata, int32_t *max, int32_t *min, int first)
+{
+  dim3 dimBlock(numThreads,1,1);
+  dim3 dimGrid (numBlocks, 1,1);
+  //int shMemSize = 2 * ((numThreads <= 32) ? 2 * numThreads * sizeof(int32_t) : numThreads * sizeof(int32_t));
+  int shMemSize = 2 * 1024 * sizeof(int32_t);
 
-//   switch (numThreads)
-//   {
-//     case 1024:
-//       if (first == 1) {
-//           find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<1024><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case 512:
-//       if (first) {find_min_max_f<512><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<512><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case 256:
-//       if (first) {find_min_max_f<256><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<256><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case 128:
-//       if (first) {find_min_max_f<128><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<128><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case 64:
-//       if (first) {find_min_max_f<64><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<64><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case 32:
-//       if (first) {find_min_max_f<32><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<32><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case 16:
-//       if (first) {find_min_max_f<16><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<16><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case  8:
-//       if (first) {find_min_max_f<8><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<8><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case  4:
-//       if (first) {find_min_max_f<4><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<4><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case  2:
-//       if (first) {find_min_max_f<2><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<2><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     case  1:
-//       if (first) {find_min_max_f<1><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
-//       else {find_min_max<1><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
-//       break;
-//     default:
-//       printf("invalid number of threads, exiting...\n");
-//       exit(1);
-//   }
-// }
+  switch (numThreads)
+  {
+    case 1024:
+      if (first == 1) {
+          find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<1024><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case 512:
+      if (first) {find_min_max_f<512><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<512><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case 256:
+      if (first) {find_min_max_f<256><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<256><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case 128:
+      if (first) {find_min_max_f<128><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<128><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case 64:
+      if (first) {find_min_max_f<64><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<64><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case 32:
+      if (first) {find_min_max_f<32><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<32><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case 16:
+      if (first) {find_min_max_f<16><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<16><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case  8:
+      if (first) {find_min_max_f<8><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<8><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case  4:
+      if (first) {find_min_max_f<4><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<4><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case  2:
+      if (first) {find_min_max_f<2><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<2><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    case  1:
+      if (first) {find_min_max_f<1><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      else {find_min_max<1><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
+      break;
+    default:
+      printf("invalid number of threads, exiting...\n");
+      exit(1);
+  }
+}
 
  bool calculate_blocks_and_threads(int n, int &blocks, int &threads)
 {
@@ -107,7 +107,7 @@
    int8_t *deviceFilter;
    int size = height*width*sizeof(int32_t);
    int numBlocks = pixelCount / 1024;
-   
+   int first = 1;
    int numThreads, nblocks;
    int iteration_n = pixelCount;
    printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
@@ -126,18 +126,18 @@
    int32_t *max = g_min_max;
    int32_t *min = g_min_max + (numBlocks +1);
    bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-   find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(deviceMatrix_OUT, max, min,pixelCount);
-    //gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
+   //find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(deviceMatrix_OUT, max, min,pixelCount);
+    gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
-    
+    first = 0;
  
      while(should_repeat)
      {
        iteration_n = nblocks;
        printf("HERE: %d blocks \n", nblocks);
        should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-       find_min_max<numThreads><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);
-       //gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, g_min_max, max, min, first);
+       //find_min_max<numThreads><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);
+       gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, g_min_max, max, min, first);
      }
    
    normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,g_min_max);
