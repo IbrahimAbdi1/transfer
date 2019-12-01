@@ -31,8 +31,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
   switch (numThreads)
   {
     case 1024:
-      if (first == 1) {
-          find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      if (first == 1) {find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
       else {find_min_max<1024><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);}
       break;
     case 512:
@@ -83,7 +82,8 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
 
  bool calculate_blocks_and_threads(int n, int &blocks, int &threads)
 {
-  threads = 1024; // (n < 1024*2) ? (n/2) : 
+  
+  blocks = n/1024 +1;
   if (n < 2) threads = 1;
   if (n < 4) threads = 2;
   if (n < 8) threads = 4;
@@ -94,7 +94,6 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
   if (n < 256) threads = 128;
   if (n < 512) threads = 256;
   if (n < 1024) threads = 512;
-  blocks = (n + (threads * 2 - 1)) / (threads * 2);
   return blocks != 1;
 }
  
@@ -127,7 +126,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
    int32_t *min = g_min_max + (numBlocks +1);
    bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
    printf("pixels %d blocks %d threads %d",iteration_n, nblocks, numThreads);
-    gpu_min_max_switch_threads(iteration_n, numThreads, 2*nblocks, deviceMatrix_OUT, max, min, first);
+    gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
     first = 0;
  
@@ -137,7 +136,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
        printf("HERE: %d blocks \n", nblocks);
        should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
        printf("pixels %d blocks %d threads %d",iteration_n, nblocks, numThreads);
-       gpu_min_max_switch_threads(iteration_n, numThreads, 2*nblocks, g_min_max, max, min, first);
+       gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, g_min_max, max, min, first);
      }
    
    normalize1<<<numBlocks + 1,1024>>>(deviceMatrix_OUT,width,height,g_min_max);
