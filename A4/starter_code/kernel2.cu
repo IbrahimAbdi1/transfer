@@ -13,6 +13,10 @@
  */
 
 #include "kernels.h"
+#include <stdio.h>
+#include <string>
+#include <unistd.h>
+#include <math.h>
 
 void run_kernel2(const int8_t *filter, int32_t dimension, const int32_t *input,int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
@@ -98,7 +102,7 @@ __global__ void kernel2(const int8_t *filter, int32_t dimension,const int32_t *i
    }
 }
 
-__global__ void normalize2(int32_t *image, int32_t width, int32_t height,int32_t smallest, int32_t biggest) {
+__global__ void normalize2(int32_t *image, int32_t width, int32_t height,int32_t *smallest_biggest) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
    if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
      image[idx] = ((image[idx] - smallest_biggest[1]) * 255) / (smallest_biggest[0] - smallest_biggest[1]);
