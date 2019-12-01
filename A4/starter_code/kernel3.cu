@@ -22,14 +22,15 @@ void run_kernel3(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
   // Figure out how to split the work into threads and call the kernel below.
   int rowCount = height;
+  int pixelCount = height*width;
   int32_t *g_min_max;
   int32_t *deviceMatrix_IN,*deviceMatrix_OUT;
   int8_t *deviceFilter;
   int size = height*width*sizeof(int32_t);
-  int numBlocks = rowCount / 1024;
+  int numBlocks = pixelCount / 1024;
   int first = 1;
   int numThreads, nblocks;
-  int iteration_n = rowCount;
+  int iteration_n = pixelCount;
   printf("rowCount %d numBlocks %d\n",rowCount,numBlocks);
 
   cudaMalloc((void**)&deviceMatrix_IN,size);
@@ -41,7 +42,7 @@ void run_kernel3(const int8_t *filter, int32_t dimension, const int32_t *input,
   cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
   cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
 
-  kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
+  kernel1<<<rowCount/1024+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
   int32_t *max = g_min_max;
   int32_t *min = g_min_max + (numBlocks +1);
