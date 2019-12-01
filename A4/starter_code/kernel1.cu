@@ -106,8 +106,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
    int8_t *deviceFilter;
    int size = height*width*sizeof(int32_t);
    int numBlocks = pixelCount / 1024;
-   int32_t *max = g_min_max;
-   int32_t *min = g_min_max + (numBlocks +1);
+   
    bool first = true;
    int numThreads, nblocks;
    int iteration_n = pixelCount;
@@ -124,7 +123,8 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
  
    kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
-
+   int32_t *max = g_min_max;
+   int32_t *min = g_min_max + (numBlocks +1);
     bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
     gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
