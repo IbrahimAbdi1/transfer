@@ -135,7 +135,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
        iteration_n = nblocks;
        printf("HERE: %d blocks \n", nblocks);
        should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-       printf("pixels %d blocks %d threads %d",iteration_n, nblocks, numThreads);
+       printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
        gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, g_min_max, max, min, first);
      }
    
