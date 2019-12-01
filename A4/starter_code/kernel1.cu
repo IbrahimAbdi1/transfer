@@ -21,7 +21,7 @@
 
  #define MY_MIN(x,y) ((x < y) ? x : y)
 
-void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, int32_t *indata, int32_t *max, int32_t *min, int first)
+void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, int32_t *indata, int32_t *max, int32_t *min, bool first)
 {
   dim3 dimBlock(numThreads,1,1);
   dim3 dimGrid (numBlocks, 1,1);
@@ -108,7 +108,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
    int numBlocks = pixelCount / 1024;
    int32_t *max = g_min_max;
    int32_t *min = g_min_max + (numBlocks +1);
-   int first = 1;
+   bool first = true;
    int numThreads, nblocks;
    printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
  
@@ -127,7 +127,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
     bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
     gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
-    first = 0;
+    first = false;
  
      while(should_repeat)
      {
