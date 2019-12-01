@@ -119,7 +119,7 @@
      
     
    int tidx = blockIdx.x * blockDim.x + threadIdx.x;
-   int idx = idx/width + width*(idx%width);
+   int idx = tidx/width + width*(tidx%width);
    if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
      image[idx] = ((image[idx] - smallest_biggest[1]) * 255) / (smallest_biggest[0] - smallest_biggest[1]);
    }
