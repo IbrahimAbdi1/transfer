@@ -139,7 +139,7 @@ void *sharding_row_work(void *args){
 }
 
 void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,int32_t *output, int32_t width, int32_t height) {
-    common_work *x = (common_work)malloc(sizeof(common_work));
+    common_work *x = (common_work *)malloc(sizeof(common_work));
     x->f = filter;
     x->dimension = dimension;
     x->original_image = input;
