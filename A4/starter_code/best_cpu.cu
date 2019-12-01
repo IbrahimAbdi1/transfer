@@ -17,6 +17,7 @@
 #include <string>
 #include <unistd.h>
 #include <math.h>
+#include <pthread.h>
 typedef struct common_work_t
 {
     const filter *f;
