@@ -15,6 +15,7 @@
 #include "kernels.h"
 #include <stdio.h>
 #include <string>
+#include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
 #include <pthread.h>
@@ -121,7 +122,7 @@ void *sharding_row_work(void *args){
     else{
         for(int i=start_row;i<end_row;i++){
             for(int j =0;j<w->common->width;j++){
-                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                int32_t new_pix = apply2d(x->f,x->dimension,x->original_image,x->output_image,x->width,x->height,i,j);
                 x->output_image[access(i,j,x->width)] = new_pix;
                 if(new_pix < pix_min){
                     pix_min = new_pix;
