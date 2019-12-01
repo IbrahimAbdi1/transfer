@@ -13,6 +13,10 @@
  */
 
 #include "kernels.h"
+#include <stdio.h>
+#include <string>
+#include <unistd.h>
+#include <math.h>
 
 void run_kernel4(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
@@ -88,7 +92,7 @@ __global__ void kernel4(const int8_t *filter, int32_t dimension,const int32_t *i
               }
           }
       }
-      output[idx +(width*i)];
+      output[idx +(width*i)] = sum;
     }
   }
 
@@ -97,7 +101,7 @@ __global__ void kernel4(const int8_t *filter, int32_t dimension,const int32_t *i
 __global__ void normalize4(int32_t *image, int32_t width, int32_t height,int32_t *smallest_biggest) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-  int start_row = idx*width;
+  
   
 
   for(int i = 0;i<height;i++){
