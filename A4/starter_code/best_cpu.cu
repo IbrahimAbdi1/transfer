@@ -39,6 +39,17 @@ typedef struct work_t
     int32_t id;
 } work;
 
+void normalize_pixel(int32_t *target, int32_t pixel_idx, int32_t smallest, 
+    int32_t largest)
+{
+if (smallest == largest)
+{
+    return;
+}
+
+target[pixel_idx] = ((target[pixel_idx] - smallest) * 255) / (largest - smallest);
+}
+
 int access(int row,int column,int width){
     return row*width+column;
 }
@@ -100,8 +111,8 @@ void *sharding_row_work(void *args){
     int num_rows =w->common->height/w->common->max_threads;
     int start_row = w->id * num_rows;
     int end_row = start_row + num_rows;
-    double pix_min = INFINTY;
-    double pix_max = -INFINTY;
+    double pix_min = INFINITY;
+    double pix_max = -INFINITY;
     if(w->id == (w->common->max_threads - 1)){
         for(int i=start_row;i<x->height;i++){
             for(int j =0;j<w->common->width;j++){
