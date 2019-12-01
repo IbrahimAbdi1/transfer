@@ -152,7 +152,7 @@ void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,
     pthread_mutex_init(&(x->lock), NULL);
     x->max_threads = 8;
     x->width = width; x->height = height;
-    x->minp = 0; x->maxp = 255;
+    x->minp = 2147483647; x->maxp = -2147483647;
     pthread_t *t = (pthread_t*)malloc(8 * sizeof(pthread_t));
 
     for(int i = 0; i < 8; i++) {
