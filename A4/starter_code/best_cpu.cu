@@ -97,6 +97,7 @@ void *sharding_row_work(void *args){
         pthread_mutex_unlock(&(x->lock));
 
         pthread_barrier_wait(&(x->barrier));
+        printf("min %d max %d\n",x->minp,x->maxp);
         for(int i=start_row;i<x->height;i++){
             for(int j =0;j<w->common->width;j++){
                 normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
