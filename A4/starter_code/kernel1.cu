@@ -209,7 +209,7 @@ unsigned int threadID = threadIdx.x;
 unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
 if(tid < pixelCount){
-  int32_t g_pixel = arr[tid];
+  int32_t g_pixel = indata[tid];
   max_min_data[0][threadID] = (double)g_pixel;
   max_min_data[1][threadID] = (double)g_pixel;
 }
@@ -316,11 +316,9 @@ unsigned int threadID = threadIdx.x;
 unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
 if(tid < pixelCount){
-  int32_t g_pixel = arr[tid];
-  max_min_data[0][threadID] = (double)g_pixel;
-  max_min_data[1][threadID] = (double)g_pixel;
+  max_min_data[0][threadID] = (double)max[tid];
+  max_min_data[1][threadID] = (double)min[tid];
 }
-
 else{
   max_min_data[0][threadID] = -INFINITY;
   max_min_data[1][threadID] = INFINITY;
