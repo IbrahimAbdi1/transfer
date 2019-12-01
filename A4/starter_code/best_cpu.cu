@@ -153,7 +153,7 @@ void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,
 
     for(int i = 0; i < 8; i++) {
         
-        work *y = malloc(sizeof(work));
+        work *y = (work *)malloc(sizeof(work));
         y->common = x;
         y->id = i;
         pthread_create(&t[i], NULL,sharding_row_work , (void *)y);
