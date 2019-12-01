@@ -87,8 +87,8 @@
    
    // call apply2d on input @ index and store it  on output @ index
    if(idx < height*width){
-     int row = idx/width;
-     int column = idx%width; // expensive 
+     int row = idx%width;
+     int column = idx/width; // expensive 
     
      // apply2d function (really bad need fix)
      int32_t sum = 0;
@@ -118,7 +118,8 @@
  __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t *smallest_biggest) {
      
     
-   int idx = blockIdx.x * blockDim.x + threadIdx.x;
+   int tidx = blockIdx.x * blockDim.x + threadIdx.x;
+   idx = idx/width + width*(idx%width);
    if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
      image[idx] = ((image[idx] - smallest_biggest[1]) * 255) / (smallest_biggest[0] - smallest_biggest[1]);
    }
