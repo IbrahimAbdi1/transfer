@@ -14,7 +14,7 @@ add_library(a4_kernels
   kernel3.cu
   kernel4.cu
   kernel5.cu
-  apply2D.cu
+  reduce.cu
 )
 
 add_executable(main
