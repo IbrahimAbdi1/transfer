@@ -21,7 +21,7 @@
 
  #define MY_MIN(x,y) ((x < y) ? x : y)
 
-void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, int32_t *indata, int32_t *max, int32_t *min, bool first)
+void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, int32_t *indata, int32_t *max, int32_t *min, int first)
 {
   dim3 dimBlock(numThreads,1,1);
   dim3 dimGrid (numBlocks, 1,1);
@@ -31,7 +31,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
   switch (numThreads)
   {
     case 1024:
-      if (first == true) {find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
+      if (first) {find_min_max_f<1024><<<numBlocks,numThreads,shMemSize>>>(indata, max, min,pixelCount);}
       else find_min_max<1024><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);
       break;
     case 512:
@@ -106,10 +106,10 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
    int8_t *deviceFilter;
    int size = height*width*sizeof(int32_t);
    int numBlocks = pixelCount / 1024;
-   
-   bool first = true;
+   int32_t *max = g_min_max;
+   int32_t *min = g_min_max + (numBlocks +1);
+   int first = 1;
    int numThreads, nblocks;
-   int iteration_n = pixelCount;
    printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
  
    cudaMalloc((void**)&deviceMatrix_IN,size);
@@ -123,12 +123,11 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
  
    kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
-   int32_t *max = g_min_max;
-   int32_t *min = g_min_max + (numBlocks +1);
+
     bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
     gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
-    first = false;
+    first = 0;
  
      while(should_repeat)
      {
