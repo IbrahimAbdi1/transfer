@@ -29,8 +29,9 @@ if (smallest == largest)
     return;
 }
 
+
 target[pixel_idx] = ((target[pixel_idx] - smallest) * 255) / (largest - smallest);
-printf("best cpu %d\n",target[pixel_idx]);
+printf("best cpu %d min %d max %d \n",target[pixel_idx]);
 }
 
 int access(int row,int column,int width){
