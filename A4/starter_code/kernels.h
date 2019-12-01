@@ -20,6 +20,26 @@
  * Be careful: "min" and "max" are names of CUDA library functions
  * unfortunately, so don't use those for variable names.*/
 
+typedef struct common_work_t
+{
+    const int8_t *f;
+    int32_t dimension;
+            const int32_t *original_image;
+            int32_t *output_image;
+            int32_t width;
+            int32_t height;
+            int32_t max_threads;
+            pthread_barrier_t barrier;
+            int32_t work_chunk;
+            int32_t minp;
+            int32_t maxp;
+            pthread_mutex_t lock;
+} common_work;
+typedef struct work_t
+{
+    common_work *common;
+    int32_t id;
+} work;
 
 template <unsigned int blockSize> __global__ void find_min_max(int32_t *max, int32_t *min,int pixelCount);
 template <unsigned int blockSize> __global__ void find_min_max_f(int32_t *indata,int32_t *max, int32_t *min,int pixelCount);

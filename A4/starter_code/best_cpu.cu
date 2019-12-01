@@ -19,26 +19,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <pthread.h>
-typedef struct common_work_t
-{
-    const int8_t *f;
-    int32_t dimension;
-            const int32_t *original_image;
-            int32_t *output_image;
-            int32_t width;
-            int32_t height;
-            int32_t max_threads;
-            pthread_barrier_t barrier;
-            int32_t work_chunk;
-            int32_t minp;
-            int32_t maxp;
-            pthread_mutex_t lock;
-} common_work;
-typedef struct work_t
-{
-    common_work *common;
-    int32_t id;
-} work;
+
 
 void normalize_pixel(int32_t *target, int32_t pixel_idx, int32_t smallest, 
     int32_t largest)
