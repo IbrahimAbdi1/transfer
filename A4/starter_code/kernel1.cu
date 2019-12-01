@@ -201,8 +201,8 @@
  
  
  // tid switch to threadId
- template <unsigned int blockSize>
- __global__ void find_min_max_f(int32_t *indata,int32_t *max, int32_t *min,int pixelCount)
+template <unsigned int blockSize>
+__global__ void find_min_max_f(int32_t *indata,int32_t *max, int32_t *min,int pixelCount)
 {
 
 extern __shared__ double max_min_data[2][1024];
