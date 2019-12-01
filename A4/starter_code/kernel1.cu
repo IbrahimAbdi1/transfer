@@ -118,8 +118,8 @@
  __global__ void normalize1(int32_t *image, int32_t width, int32_t height, int32_t *smallest_biggest) {
      
     
-   int tidx = blockIdx.x * blockDim.x + threadIdx.x;
-   int idx = tidx/width + width*(tidx%width);
+   int idx = blockIdx.x * blockDim.x + threadIdx.x;
+   //int idx = tidx/width + width*(tidx%width);
    if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
      image[idx] = ((image[idx] - smallest_biggest[1]) * 255) / (smallest_biggest[0] - smallest_biggest[1]);
    }
