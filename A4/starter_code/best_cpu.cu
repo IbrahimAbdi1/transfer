@@ -39,21 +39,25 @@ typedef struct work_t
     int32_t id;
 } work;
 
+int access(int row,int column,int width){
+    return row*width+column;
+}
+
 int32_t apply2d(const int8_t*f,int32_t dimension, const int32_t *original, int32_t *target,
     int32_t width, int32_t height,
     int row, int column)
 {
 int32_t sum = 0;
-int filter_centre = f->dimension/2;
+int filter_centre = dimension/2;
 
 int s_row = row - filter_centre;
 int s_column = column - filter_centre;
-for(int r = 0;r<f->dimension;r++){
+for(int r = 0;r<dimension;r++){
     int n_row = s_row + r;
-    for(int c = 0;c<f->dimension;c++){
+    for(int c = 0;c<dimension;c++){
         int n_column = s_column + c;
         if((n_row >= 0) && (n_column >= 0) && (n_column < width) && (n_row < height)){
-            sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(n_row,n_column,width)]);
+            sum += (f[access(r,c,dimension)]) * (original[access(n_row,n_column,width)]);
             
         }
     }
