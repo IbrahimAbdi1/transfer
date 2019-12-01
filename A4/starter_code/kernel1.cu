@@ -109,6 +109,7 @@
    int numBlocks = pixelCount / 1024;
    int first = 1;
    int numThreads, nblocks;
+   int iteration_n = pixelCount;
    printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
  
    cudaMalloc((void**)&deviceMatrix_IN,size);
