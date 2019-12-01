@@ -23,6 +23,9 @@
 
 __global__ void find_min_max(int32_t *max, int32_t *min,int pixelCount);
 __global__ void find_min_max_f(int32_t *indata,int32_t *max, int32_t *min,int pixelCount);
+void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, int32_t *indata, int32_t *max, int32_t *min, int first);
+bool calculate_blocks_and_threads(int n, int &blocks, int &threads);
+
 
 
 void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,
