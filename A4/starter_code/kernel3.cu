@@ -13,6 +13,10 @@
  */
 
 #include "kernels.h"
+#include <stdio.h>
+#include <string>
+#include <unistd.h>
+#include <math.h>
 
 void run_kernel3(const int8_t *filter, int32_t dimension, const int32_t *input,
                  int32_t *output, int32_t width, int32_t height) {
