@@ -107,7 +107,7 @@
    int8_t *deviceFilter;
    int size = height*width*sizeof(int32_t);
    int numBlocks = pixelCount / 1024;
-   int first = 1;
+   
    int numThreads, nblocks;
    int iteration_n = pixelCount;
    printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
@@ -126,16 +126,17 @@
    int32_t *max = g_min_max;
    int32_t *min = g_min_max + (numBlocks +1);
     bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-    find_min_max_f<numThreads><<<numBlocks,numThreads,shMemSize>>>(deviceMatrix_OUT, max, min,pixelCount);}
+    find_min_max_f<numThreads><<<numBlocks,numThreads,shMemSize>>>(deviceMatrix_OUT, max, min,pixelCount);
     //gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
-    first = 0;
+    
  
      while(should_repeat)
      {
        iteration_n = nblocks;
        printf("HERE: %d blocks \n", nblocks);
        should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
+       find_min_max<numThreads><<<numBlocks,numThreads,shMemSize>>>(max, min,pixelCount);
        //gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, g_min_max, max, min, first);
      }
    
