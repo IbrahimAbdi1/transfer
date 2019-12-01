@@ -110,6 +110,7 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
    int32_t *min = g_min_max + (numBlocks +1);
    bool first = true;
    int numThreads, nblocks;
+   int iteration_n = pixelCount;
    printf("pixelCount %d numBlocks %d\n",pixelCount,numBlocks);
  
    cudaMalloc((void**)&deviceMatrix_IN,size);
