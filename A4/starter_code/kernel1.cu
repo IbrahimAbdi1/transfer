@@ -107,7 +107,7 @@
          }
      }
      
-     output[idx] = sum;
+     output[row*width+column] = sum;
      
      
    }
