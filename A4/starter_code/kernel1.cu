@@ -84,16 +84,16 @@ void gpu_min_max_switch_threads(int pixelCount, int numThreads, int numBlocks, i
 {
   threads = 1024;
   blocks = n/1024 +1;
-  if (n < 2) threads = 1;
-  if (n < 4) threads = 2;
-  if (n < 8) threads = 4;
-  if (n < 16) threads = 8;
-  if (n < 32) threads = 16;
-  if (n < 64) threads = 32;
-  if (n < 128) threads = 64;
-  if (n < 256) threads = 128;
-  if (n < 512) threads = 256;
-  if (n < 1024) threads = 512;
+  if (n < 2) threads = 2;
+  if (n < 4) threads = 4;
+  if (n < 8) threads = 8;
+  if (n < 16) threads = 16;
+  if (n < 32) threads = 32;
+  if (n < 64) threads = 64;
+  if (n < 128) threads = 128;
+  if (n < 256) threads = 256;
+  if (n < 512) threads = 512;
+  
   return blocks != 1;
 }
  
