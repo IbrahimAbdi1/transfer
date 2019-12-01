@@ -20,7 +20,8 @@
 #include <pthread.h>
 typedef struct common_work_t
 {
-    const filter *f;
+    const int8_t *f;
+    int32_t dimension;
             const int32_t *original_image;
             int32_t *output_image;
             int32_t width;
@@ -38,9 +39,32 @@ typedef struct work_t
     int32_t id;
 } work;
 
+int32_t apply2d(const int8_t*f,int32_t dimension, const int32_t *original, int32_t *target,
+    int32_t width, int32_t height,
+    int row, int column)
+{
+int32_t sum = 0;
+int filter_centre = f->dimension/2;
+
+int s_row = row - filter_centre;
+int s_column = column - filter_centre;
+for(int r = 0;r<f->dimension;r++){
+    int n_row = s_row + r;
+    for(int c = 0;c<f->dimension;c++){
+        int n_column = s_column + c;
+        if((n_row >= 0) && (n_column >= 0) && (n_column < width) && (n_row < height)){
+            sum += (f->matrix[access(r,c,f->dimension)]) * (original[access(n_row,n_column,width)]);
+            
+        }
+    }
+}
+return sum;
+}
+
 void run_best_cpu(const int8_t *filter, int32_t dimension, const int32_t *input,int32_t *output, int32_t width, int32_t height) {
     common_work *x = malloc(sizeof(common_work));
-    x->f = f;
+    x->f = filter;
+    x->dimension = dimension;
     x->original_image = input;
     x->output_image = output;
     pthread_barrier_init(&(x->barrier),NULL,8);
@@ -77,7 +101,7 @@ void *sharding_row_work(void *args){
     if(w->id == (w->common->max_threads - 1)){
         for(int i=start_row;i<x->height;i++){
             for(int j =0;j<w->common->width;j++){
-                int32_t new_pix = apply2d(x->f,x->original_image,x->output_image,x->width,x->height,i,j);
+                int32_t new_pix = apply2d(x->f,x->dimension,x->original_image,x->output_image,x->width,x->height,i,j);
                 x->output_image[access(i,j,x->width)] = new_pix;
                 if(new_pix < pix_min){
                     pix_min = new_pix;
