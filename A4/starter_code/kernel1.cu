@@ -108,7 +108,7 @@
      }
      
      output[row*width+column] = sum;
-     printf("kernel 1 filtered %d \n",sum);
+     printf("kernel 1 filtered %d for id %d\n",sum,idx);
      
      
    }
