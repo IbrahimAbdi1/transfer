@@ -183,7 +183,7 @@ if (blockSize >= 2) {	if(threadID < 1){
 
 // write result for this block back to global memory
   if (threadID == 0) {
-    printf("vlock %d max %d min %d\n", blockIdx.x,(int)max_min_data[0][0],(int)max_min_data[1][0]);
+    //printf("vlock %d max %d min %d\n", blockIdx.x,(int)max_min_data[0][0],(int)max_min_data[1][0]);
     max[blockIdx.x] = (int32_t) max_min_data[0][0];
     min[blockIdx.x] = (int32_t) max_min_data[1][0];
   }
@@ -288,7 +288,7 @@ if (blockSize >= 2) {	if(threadID < 1){
 
 // write result for this block back to global memory
   if (threadID == 0) {
-    printf("vlock %d max %d min %d\n", blockIdx.x,(int)max_min_data[0][0],(int)max_min_data[1][0]);
+    //printf("vlock %d max %d min %d\n", blockIdx.x,(int)max_min_data[0][0],(int)max_min_data[1][0]);
     max[blockIdx.x] = max_min_data[0][0];
     min[blockIdx.x] = max_min_data[1][0];
   }
