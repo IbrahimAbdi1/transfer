@@ -116,7 +116,7 @@ TEST(csc367a4, compare_kernels_against_each_other) {
       printf("testing with width %d height %d\n",width,height);
       run_best_cpu(FILTER, FILTER_DIMENSION, source.matrix, outputs[0].matrix,
                    width, height);
-      run_kernel1(FILTER, FILTER_DIMENSION, source.matrix, outputs[1].matrix,
+      run_kernel2(FILTER, FILTER_DIMENSION, source.matrix, outputs[1].matrix,
                   width, height);
       run_kernel2(FILTER, FILTER_DIMENSION, source.matrix, outputs[2].matrix,
                   width, height);
