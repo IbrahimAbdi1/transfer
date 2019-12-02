@@ -114,7 +114,7 @@ void *sharding_row_work(void *args){
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
-                else if (new_pix > pix_max){
+                if (new_pix > pix_max){
                     pix_max = new_pix;
                 }
             }
