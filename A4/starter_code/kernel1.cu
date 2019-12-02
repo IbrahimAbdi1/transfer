@@ -87,6 +87,7 @@
    
    // call apply2d on input @ index and store it  on output @ index
    if(idx < height*width){
+     printf("id %d",idx);
      int row = idx%width;
      int column = idx/width; // expensive 
     
