@@ -51,7 +51,7 @@
    int32_t *max = g_min_max;
    int32_t *min = g_min_max + (numBlocks +1);
    bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-   printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
+   //printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
     gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
     first = 0;
@@ -59,9 +59,9 @@
      while(should_repeat)
      {
        iteration_n = nblocks;
-       printf("HERE: %d blocks \n", nblocks);
+       //printf("HERE: %d blocks \n", nblocks);
        should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-       printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
+       //printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
        gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, g_min_max, max, min, first);
      }
    
@@ -123,7 +123,7 @@
    //int idx = tidx/width + width*(tidx%width);
    if(smallest_biggest[0] != smallest_biggest[1] && idx < width * height){
      image[idx] = ((image[idx] - smallest_biggest[1]) * 255) / (smallest_biggest[0] - smallest_biggest[1]);
-     printf("kernel 1 %d\n",image[idx]);
+     //printf("kernel 1 %d\n",image[idx]);
    }
  }
  
