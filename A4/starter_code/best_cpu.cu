@@ -95,7 +95,7 @@ void *sharding_row_work(void *args){
             x->maxp = pix_max;
         }
         pthread_mutex_unlock(&(x->lock));
-
+        printf("best min %d max %d\n");
         pthread_barrier_wait(&(x->barrier));
         
         for(int i=start_row;i<x->height;i++){
@@ -129,7 +129,7 @@ void *sharding_row_work(void *args){
             x->maxp = pix_max;
         }
         pthread_mutex_unlock(&(x->lock));
-
+        printf("best min %d max %d\n");
         pthread_barrier_wait(&(x->barrier));
         for(int i=start_row;i<end_row;i++){
             for(int j =0;j<w->common->width;j++){
