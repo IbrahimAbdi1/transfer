@@ -51,7 +51,7 @@
    int32_t *max = g_min_max;
    int32_t *min = g_min_max + (numBlocks +1);
    bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-   //printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
+   printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
     gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
     first = 0;
