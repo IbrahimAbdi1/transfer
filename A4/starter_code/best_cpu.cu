@@ -31,7 +31,7 @@ if (smallest == largest)
 
 
 target[pixel_idx] = ((target[pixel_idx] - smallest) * 255) / (largest - smallest);
-printf("best cpu %d min %d max %d \n",target[pixel_idx]);
+
 }
 
 int access(int row,int column,int width){
@@ -77,7 +77,7 @@ void *sharding_row_work(void *args){
                 int32_t new_pix = apply2d(x->f,x->dimension,x->original_image,x->output_image,x->width,x->height,i,j);
                 
                 x->output_image[access(i,j,x->width)] = new_pix;
-                printf("applied %d i %d\n",x->output_image[access(i,j,x->width)],access(i,j,x->width));
+                
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
@@ -97,7 +97,7 @@ void *sharding_row_work(void *args){
         pthread_mutex_unlock(&(x->lock));
 
         pthread_barrier_wait(&(x->barrier));
-        printf("min %d max %d\n",x->minp,x->maxp);
+        
         for(int i=start_row;i<x->height;i++){
             for(int j =0;j<w->common->width;j++){
                 normalize_pixel(x->output_image,access(i,j,x->width),x->minp,x->maxp);
@@ -110,7 +110,7 @@ void *sharding_row_work(void *args){
             for(int j =0;j<w->common->width;j++){
                 int32_t new_pix = apply2d(x->f,x->dimension,x->original_image,x->output_image,x->width,x->height,i,j);
                 x->output_image[access(i,j,x->width)] = new_pix;
-                printf("applied %d\n",x->output_image[access(i,j,x->width)]);
+        
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
