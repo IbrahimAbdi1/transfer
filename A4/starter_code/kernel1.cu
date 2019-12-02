@@ -45,13 +45,13 @@
    cudaMemcpy(deviceMatrix_IN,input,size, cudaMemcpyHostToDevice);
    cudaMemcpy(deviceMatrix_OUT,output,size, cudaMemcpyHostToDevice);
    cudaMemcpy(deviceFilter,filter,dimension*dimension*sizeof(int8_t),cudaMemcpyHostToDevice);
- 
+   printf("pixels %d blocks %d \n",pixelCount,numBlocks);
    kernel1<<<numBlocks+1,1024>>>(deviceFilter,dimension,deviceMatrix_IN,deviceMatrix_OUT,width,height); 
 
    int32_t *max = g_min_max;
    int32_t *min = g_min_max + (numBlocks +1);
    bool should_repeat = calculate_blocks_and_threads(iteration_n, nblocks, numThreads);
-   printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
+   //printf("pixels %d blocks %d threads %d\n",iteration_n, nblocks, numThreads);
     gpu_min_max_switch_threads(iteration_n, numThreads, nblocks, deviceMatrix_OUT, max, min, first);
 
     first = 0;
