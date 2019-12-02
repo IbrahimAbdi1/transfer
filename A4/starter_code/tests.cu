@@ -127,7 +127,7 @@ TEST(csc367a4, compare_kernels_against_each_other) {
       run_kernel5(FILTER, FILTER_DIMENSION, source.matrix, outputs[5].matrix,
                   width, height);
 
-      for (int current_kernel = 1; current_kernel < NUM_KERNELS-1;
+      for (int current_kernel = 1; current_kernel < NUM_KERNELS-3;
            ++current_kernel) {
         for (int pixel = 0; pixel < width * height; pixel++) {
           ASSERT_EQ(outputs[current_kernel].matrix[pixel],
