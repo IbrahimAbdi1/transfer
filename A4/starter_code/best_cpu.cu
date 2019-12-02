@@ -77,7 +77,7 @@ void *sharding_row_work(void *args){
                 int32_t new_pix = apply2d(x->f,x->dimension,x->original_image,x->output_image,x->width,x->height,i,j);
                 
                 x->output_image[access(i,j,x->width)] = new_pix;
-                
+                printf("best new_px %d\n",new_pix);
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
@@ -110,7 +110,7 @@ void *sharding_row_work(void *args){
             for(int j =0;j<w->common->width;j++){
                 int32_t new_pix = apply2d(x->f,x->dimension,x->original_image,x->output_image,x->width,x->height,i,j);
                 x->output_image[access(i,j,x->width)] = new_pix;
-        
+                printf("best new_px %d\n",new_pix);
                 if(new_pix < pix_min){
                     pix_min = new_pix;
                 }
