@@ -113,7 +113,7 @@ TEST(csc367a4, compare_kernels_against_each_other) {
            ++current_kernel) {
         copy_pgm_image_size(&source, &outputs[current_kernel]);
       }
-
+      printf("testing with width %d height %d\n");
       run_best_cpu(FILTER, FILTER_DIMENSION, source.matrix, outputs[0].matrix,
                    width, height);
       run_kernel1(FILTER, FILTER_DIMENSION, source.matrix, outputs[1].matrix,
