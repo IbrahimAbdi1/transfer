@@ -1,0 +1,9 @@
+To make this work
+
+1. Make sure in the source directory
+2.mkdir make 
+3. cd build
+4. cmake ../ -DCMAKE_Build_Type= Release
+5. make 
+
+NOTE MUST HAVE a GPU and install nvcc
